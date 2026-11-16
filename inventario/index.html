@@ -146,6 +146,9 @@
   .acciones{display:flex;gap:.5rem;margin-top:1rem}
   .resumen{color:var(--gris);font-size:.85rem;margin:.9rem 0 .2rem}
   .resumen strong{color:var(--tinta);font-weight:600}
+  .barra-stock{display:flex;align-items:center;gap:.6rem}
+  .barra-stock .resumen{flex:1;min-width:0}
+  .barra-stock .boton2{margin-top:.5rem}
 </style>
 </head>
 <body>
@@ -197,7 +200,10 @@
       <button type="button" data-tipo="ACC" aria-pressed="false" title="Accesorios">ACC</button>
       <button type="button" data-tipo="MP"  aria-pressed="false" title="Materias primas">MP</button>
     </div>
-    <p id="resumen" class="resumen" aria-live="polite"></p>
+    <div class="barra-stock">
+      <p id="resumen" class="resumen" aria-live="polite"></p>
+      <button type="button" class="boton2" id="exportar" hidden>Exportar</button>
+    </div>
     <div id="lista"><p class="vacio">Buscá o filtrá para ver productos.</p></div>
   </section>
 
@@ -466,11 +472,13 @@ async function cargarStock(){
   const n = ++turnoStock;
   if (!hayFiltro()) {
     filas = []; stockIncompleto = null;
+    $('exportar').hidden = true;
     $('resumen').innerHTML = '';
     $('lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
     return;
   }
   $('lista').innerHTML = '<p class="vacio">Buscando…</p>';
+  $('exportar').hidden = true;
   let res = await traerStock();
   // Un reintento si no cerró la cuenta (p. ej. cambió el catálogo en el medio).
   if (!res.error && res.filas.length !== res.total) res = await traerStock();
@@ -497,6 +505,9 @@ function describirFiltro(){
 }
 
 function pintar(){
+  // Exportar solo si lo que se ve está completo: un CSV parcial es el
+  // mismo problema que un total incompleto.
+  $('exportar').hidden = !!stockIncompleto || filas.length === 0;
   const fmt = n => n.toLocaleString('es-AR');
   const filtro = describirFiltro();
   if (stockIncompleto) {
@@ -531,6 +542,50 @@ $('buscar').oninput = () => {
   clearTimeout(esperaStock);
   esperaStock = setTimeout(cargarStock, 300);
 };
+// ---------- exportar CSV ----------
+// Exporta las filas que se están viendo (mismos filtros, mismo orden).
+// Para Excel en español: separador ";" (la coma es el decimal) y UTF-8
+// con BOM, que es lo que le dice a Excel que lea bien tildes y Ñ.
+// No se agrega la línea "sep=;": con ella Excel ignora el BOM.
+const COLUMNAS_CSV = [
+  ['Código', 'codigo'], ['Descripción', 'descripcion'], ['Tipo', 'tipo'],
+  ['Origen', 'origen'], ['Posición', 'posicion'], ['Etapa', 'etapa'],
+  ['Stock', 'stock'], ['Último movimiento', 'ultimo_movimiento'],
+];
+function celdaCSV(valor, clave){
+  if (valor === null || valor === undefined) return '';
+  if (clave === 'stock') return String(valor);
+  if (clave === 'ultimo_movimiento') {           // AAAA-MM-DD → DD/MM/AAAA
+    const [a, m, d] = String(valor).slice(0, 10).split('-');
+    return `${d}/${m}/${a}`;
+  }
+  let t = String(valor);
+  // Un texto que empieza con = + - @ Excel lo ejecuta como fórmula.
+  if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+  return /[;"\r\n]/.test(t) ? `"${t.replaceAll('"', '""')}"` : t;
+}
+function exportarCSV(){
+  if (stockIncompleto || filas.length === 0) return;
+  const lineas = [
+    COLUMNAS_CSV.map(([titulo]) => titulo).join(';'),
+    ...filas.map(f => COLUMNAS_CSV.map(([, clave]) => celdaCSV(f[clave], clave)).join(';')),
+  ];
+  const blob = new Blob(['﻿' + lineas.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+
+  // stock_SE_olla_2026-11-16.csv: el filtro en el nombre, para no confundir archivos.
+  const partes = ['stock', filtroTipo, $('buscar').value.trim()]
+    .map(x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9-]+/g, '-').replace(/^-+|-+$/g, ''))
+    .filter(Boolean);
+  const nombre = `${partes.join('_')}_${hoy()}.csv`;
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = nombre;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+$('exportar').onclick = exportarCSV;
+
 $('filtro-tipo').onclick = e => {
   const b = e.target.closest('[data-tipo]');
   if (!b) return;
@@ -1070,6 +1125,7 @@ function mostrarLogin(){
     .forEach(x => x.setAttribute('aria-pressed', x.dataset.tipo === ''));
   $('resumen').innerHTML = '';
   $('lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
+  $('exportar').hidden = true;
   $('m-prod').value = '';
   prodMov = null;
   $('m-elegido').hidden = true;
