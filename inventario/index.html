@@ -1211,7 +1211,12 @@ let usuarios = [];
 async function cargarUsuarios(){
   $('u-lista').innerHTML = '<p class="vacio">Cargando…</p>';
   const { data, error } = await db.rpc('listar_usuarios');
-  if (error) { $('u-lista').innerHTML = ''; avisar('u-aviso', 'No se pudo leer la lista de usuarios:\n' + error.message, false); return; }
+  // El error de carga va en el lugar de la lista: así una carga buena lo
+  // reemplaza y no queda un error viejo arriba de una lista que sí cargó.
+  if (error) {
+    $('u-lista').innerHTML = `<div class="aviso mal">No se pudo leer la lista de usuarios:\n${esc(error.message)}</div>`;
+    return;
+  }
   usuarios = data;
   pintarUsuarios();
 }
