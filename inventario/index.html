@@ -32,9 +32,10 @@
   h1{font-size:1.15rem;font-weight:600;margin:0 0 .15rem}
   .sub{color:var(--gris);font-size:.85rem;margin:0 0 1.5rem}
 
-  nav{display:flex;gap:.4rem;margin-bottom:1.25rem}
+  /* Con muchas pestañas (admin) pasa a dos renglones en vez de salirse del ancho. */
+  nav{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1.25rem}
   nav button{
-    flex:1;padding:.7rem .5rem;border:1px solid var(--linea);
+    flex:1 1 5.5rem;padding:.7rem .5rem;border:1px solid var(--linea);
     background:var(--campo);color:var(--gris);border-radius:3px;
     font:inherit;font-size:.9rem;cursor:pointer;
   }
@@ -147,6 +148,20 @@
   .resumen{color:var(--gris);font-size:.85rem;margin:.9rem 0 .2rem}
   .resumen strong{color:var(--tinta);font-weight:600}
   .barra-stock{display:flex;align-items:center;gap:.6rem}
+  /* Usuarios */
+  .explica{background:var(--campo);border:1px solid var(--linea);border-radius:3px;padding:.8rem .9rem;font-size:.85rem}
+  .explica ol{margin:.4rem 0 .3rem;padding-left:1.2rem}
+  .explica li{margin:.2rem 0}
+  .usr{padding:.9rem 0;border-bottom:1px solid var(--linea)}
+  .usr.sin{border-left:3px solid var(--alarma);padding-left:.7rem;background:#F6E7E6}
+  .usr .nombre{font-weight:600}
+  .usr .mail{color:var(--gris);font-size:.85rem;overflow-wrap:anywhere}
+  .usr .alta{color:var(--gris);font-size:.75rem}
+  .usr .controles{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem}
+  .usr .controles input,.usr .controles select{flex:1 1 9rem;width:auto;padding:.55rem}
+  .rol-chip{display:inline-block;margin-left:.4rem;padding:0 .35rem;border:1px solid var(--linea);border-radius:2px;
+    font-size:.7rem;color:var(--gris);vertical-align:2px}
+  .rol-chip.sin{border-color:var(--alarma);color:var(--alarma);font-weight:600}
   .barra-stock .resumen{flex:1;min-width:0}
   .barra-stock .boton2{margin-top:.5rem}
 </style>
@@ -188,6 +203,7 @@
     <button id="t-mov"   aria-selected="false">Movimiento</button>
     <button id="t-prod"  aria-selected="false">Producto nuevo</button>
     <button id="t-edit"  aria-selected="false">Editar producto</button>
+    <button id="t-usr"   aria-selected="false">Usuarios</button>
   </nav>
 
   <!-- ====== STOCK ====== -->
@@ -323,7 +339,13 @@
   <!-- ====== EDITAR PRODUCTO (admin) ====== -->
   <section id="p-edit" hidden>
     <input id="e-buscar" placeholder="Buscar por código o descripción" autocomplete="off">
-    <div id="e-resultados"></div>
+    <div id="e-listado">
+      <div class="barra-stock">
+        <p id="e-resumen" class="resumen" aria-live="polite"></p>
+        <button type="button" class="boton2" id="e-exportar" hidden>Exportar</button>
+      </div>
+      <div id="e-resultados"></div>
+    </div>
 
     <div id="e-ficha" hidden>
       <p class="ficha-cod" id="e-codigo"></p>
@@ -371,6 +393,20 @@
     </div>
   </section>
 
+  <!-- ====== USUARIOS (admin) ====== -->
+  <section id="p-usr" hidden>
+    <div class="explica">
+      <strong>Cómo se da acceso a una persona</strong>
+      <ol>
+        <li>La cuenta se crea en Supabase: <em>Authentication → Users → Add user</em>, con su mail y una contraseña.</li>
+        <li>Aparece en esta lista como <span class="rol-chip sin">sin acceso</span>. Elegí su rol y tocá <em>Dar acceso</em>.</li>
+      </ol>
+      <p class="ayuda">Sin rol puede iniciar sesión pero no ve nada. Tu propio rol no se puede cambiar ni quitar desde acá.</p>
+    </div>
+    <div id="u-aviso"></div>
+    <div id="u-lista"></div>
+  </section>
+
   </div><!-- /app -->
 
 </main>
@@ -393,10 +429,10 @@ let filas = [];
 
 // ---------- pestañas según rol ----------
 // Esto solo arma la pantalla: lo que cada rol puede hacer lo bloquea la base con RLS.
-const tabs = [['t-stock','p-stock'],['t-mov','p-mov'],['t-prod','p-prod'],['t-edit','p-edit']];
+const tabs = [['t-stock','p-stock'],['t-mov','p-mov'],['t-prod','p-prod'],['t-edit','p-edit'],['t-usr','p-usr']];
 const PERMISOS = {
   planta:   ['t-stock', 't-mov'],
-  admin:    ['t-stock', 't-mov', 't-prod', 't-edit'],
+  admin:    ['t-stock', 't-mov', 't-prod', 't-edit', 't-usr'],
   gerencia: ['t-stock'],
 };
 const NOMBRE_ROL = { planta: 'Planta', admin: 'Administración', gerencia: 'Gerencia' };
@@ -410,6 +446,7 @@ function abrir(bot){
   });
   if (bot === 't-stock') cargarStock();
   if (bot === 't-edit' && !enFicha) buscarProductos();
+  if (bot === 't-usr') cargarUsuarios();
 }
 tabs.forEach(([bot]) => $(bot).onclick = () => abrir(bot));
 
@@ -450,22 +487,42 @@ function consultaStock(conteo){
   return q.order('codigo');
 }
 
-async function traerStock(){
-  const primera = await consultaStock(true).range(0, PAGINA - 1);
+// Trae todas las filas de una consulta, por páginas, hasta completar el
+// total que informa la base. consulta(conteo) arma la consulta con sus
+// filtros; se la llama una vez por página.
+async function traerPaginado(consulta, clave = 'codigo'){
+  const primera = await consulta(true).range(0, PAGINA - 1);
   if (primera.error) return { error: primera.error };
   const total = primera.count;
   const todas = [...primera.data];
   // Avanza según lo que llegó, no según PAGINA: funciona aunque el
   // proyecto tenga un tope menor a 1000.
   while (total !== null && todas.length < total) {
-    const pag = await consultaStock(false).range(todas.length, todas.length + PAGINA - 1);
+    const pag = await consulta(false).range(todas.length, todas.length + PAGINA - 1);
     if (pag.error) return { filas: todas, total, error: pag.error };
     if (pag.data.length === 0) break;
     todas.push(...pag.data);
   }
-  // Si alguien cargó o borró productos mientras se paginaba, puede haber repetidos.
-  const filasUnicas = [...new Map(todas.map(f => [f.codigo, f])).values()];
+  // Si alguien cargó o borró filas mientras se paginaba, puede haber repetidos.
+  const filasUnicas = [...new Map(todas.map(f => [f[clave], f])).values()];
   return { filas: filasUnicas, total };
+}
+// Un reintento si no cerró la cuenta (p. ej. cambió el catálogo en el medio).
+async function traerCompleto(consulta){
+  let res = await traerPaginado(consulta);
+  if (!res.error && res.filas.length !== res.total) res = await traerPaginado(consulta);
+  return res;
+}
+const resultadoIncompleto = res =>
+  (res.error || res.total === null || res.filas.length !== res.total)
+    ? { cargados: res.filas.length, total: res.total, error: res.error } : null;
+function textoIncompleto({ cargados, total, error }, filtro){
+  const fmt = n => n.toLocaleString('es-AR');
+  return `<div class="aviso mal incompleto">No se pudo traer todo lo que coincide con ${filtro}: ` +
+    (total === null ? `llegaron ${fmt(cargados)} y la base no informó el total.`
+                    : `llegaron ${fmt(cargados)} de ${fmt(total)}.`) +
+    ` No se muestran totales ni se puede exportar, porque estarían incompletos.` +
+    (error ? `\n${esc(error.message)}` : '') + `</div>`;
 }
 
 async function cargarStock(){
@@ -479,9 +536,7 @@ async function cargarStock(){
   }
   $('lista').innerHTML = '<p class="vacio">Buscando…</p>';
   $('exportar').hidden = true;
-  let res = await traerStock();
-  // Un reintento si no cerró la cuenta (p. ej. cambió el catálogo en el medio).
-  if (!res.error && res.filas.length !== res.total) res = await traerStock();
+  const res = await traerCompleto(consultaStock);
   if (n !== turnoStock) return;           // llegó una respuesta vieja
   if (res.error && !res.filas) {
     $('resumen').innerHTML = '';
@@ -489,9 +544,7 @@ async function cargarStock(){
     return;
   }
   filas = res.filas;
-  stockIncompleto = (res.error || res.total === null || filas.length !== res.total)
-    ? { cargados: filas.length, total: res.total, error: res.error }
-    : null;
+  stockIncompleto = resultadoIncompleto(res);
   pintar();
 }
 
@@ -511,12 +564,7 @@ function pintar(){
   const fmt = n => n.toLocaleString('es-AR');
   const filtro = describirFiltro();
   if (stockIncompleto) {
-    const { cargados, total, error } = stockIncompleto;
-    $('resumen').innerHTML = `<div class="aviso mal incompleto">No se pudo traer todo lo que coincide con ${filtro}: ` +
-      (total === null ? `llegaron ${fmt(cargados)} productos y la base no informó el total.`
-                      : `llegaron ${fmt(cargados)} de ${fmt(total)} productos.`) +
-      ` No se muestran totales porque estarían incompletos.` +
-      (error ? `\n${esc(error.message)}` : '') + `</div>`;
+    $('resumen').innerHTML = textoIncompleto(stockIncompleto, filtro);
   } else {
     const unidades = filas.reduce((t, f) => t + (Number(f.stock) || 0), 0);
     $('resumen').innerHTML = `Con ${filtro}: ` +
@@ -543,48 +591,54 @@ $('buscar').oninput = () => {
   esperaStock = setTimeout(cargarStock, 300);
 };
 // ---------- exportar CSV ----------
-// Exporta las filas que se están viendo (mismos filtros, mismo orden).
+// Siempre se exporta lo que se está viendo: las mismas filas, con los
+// mismos filtros y en el mismo orden.
 // Para Excel en español: separador ";" (la coma es el decimal) y UTF-8
 // con BOM, que es lo que le dice a Excel que lea bien tildes y Ñ.
 // No se agrega la línea "sep=;": con ella Excel ignora el BOM.
-const COLUMNAS_CSV = [
-  ['Código', 'codigo'], ['Descripción', 'descripcion'], ['Tipo', 'tipo'],
-  ['Origen', 'origen'], ['Posición', 'posicion'], ['Etapa', 'etapa'],
-  ['Stock', 'stock'], ['Último movimiento', 'ultimo_movimiento'],
-];
-function celdaCSV(valor, clave){
+// columnas: [título, clave, formato]; formato: texto (por defecto),
+// numero, fecha (DD/MM/AAAA), lista (array) o sino (booleano).
+function celdaCSV(valor, formato = 'texto'){
   if (valor === null || valor === undefined) return '';
-  if (clave === 'stock') return String(valor);
-  if (clave === 'ultimo_movimiento') {           // AAAA-MM-DD → DD/MM/AAAA
+  if (formato === 'numero') return String(valor);
+  if (formato === 'fecha') {
     const [a, m, d] = String(valor).slice(0, 10).split('-');
     return `${d}/${m}/${a}`;
   }
-  let t = String(valor);
+  if (formato === 'sino') return valor ? 'Sí' : 'No';
+  let t = formato === 'lista' ? (valor ?? []).join(', ') : String(valor);
   // Un texto que empieza con = + - @ Excel lo ejecuta como fórmula.
   if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
   return /[;"\r\n]/.test(t) ? `"${t.replaceAll('"', '""')}"` : t;
 }
-function exportarCSV(){
-  if (stockIncompleto || filas.length === 0) return;
+function descargarCSV(partesNombre, columnas, filasCSV){
   const lineas = [
-    COLUMNAS_CSV.map(([titulo]) => titulo).join(';'),
-    ...filas.map(f => COLUMNAS_CSV.map(([, clave]) => celdaCSV(f[clave], clave)).join(';')),
+    columnas.map(([titulo]) => titulo).join(';'),
+    ...filasCSV.map(f => columnas.map(([, clave, formato]) => celdaCSV(f[clave], formato)).join(';')),
   ];
-  const blob = new Blob(['﻿' + lineas.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['\uFEFF' + lineas.join('\r\n') + '\r\n'], { type: 'text/csv;charset=utf-8' });
 
-  // stock_SE_olla_2026-11-16.csv: el filtro en el nombre, para no confundir archivos.
-  const partes = ['stock', filtroTipo, $('buscar').value.trim()]
-    .map(x => x.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^A-Za-z0-9-]+/g, '-').replace(/^-+|-+$/g, ''))
+  // stock_SE_olla_2026-11-16.csv: lo filtrado en el nombre, para no confundir archivos.
+  const partes = partesNombre
+    .map(x => x.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+               .replace(/[^A-Za-z0-9-]+/g, '-').replace(/^-+|-+$/g, ''))
     .filter(Boolean);
-  const nombre = `${partes.join('_')}_${hoy()}.csv`;
-
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  a.href = url; a.download = nombre;
+  a.href = url; a.download = `${partes.join('_')}_${hoy()}.csv`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-$('exportar').onclick = exportarCSV;
+
+const COLUMNAS_STOCK = [
+  ['Código', 'codigo'], ['Descripción', 'descripcion'], ['Tipo', 'tipo'],
+  ['Origen', 'origen'], ['Posición', 'posicion'], ['Etapa', 'etapa'],
+  ['Stock', 'stock', 'numero'], ['Último movimiento', 'ultimo_movimiento', 'fecha'],
+];
+$('exportar').onclick = () => {
+  if (stockIncompleto || filas.length === 0) return;
+  descargarCSV(['stock', filtroTipo, $('buscar').value.trim()], COLUMNAS_STOCK, filas);
+};
 
 $('filtro-tipo').onclick = e => {
   const b = e.target.closest('[data-tipo]');
@@ -983,23 +1037,57 @@ $('n-guardar').onclick = async () => {
 // ---------- EDITAR PRODUCTO ----------
 let enFicha = null;   // producto abierto
 let turnoEdit = 0, esperaEdit;
+let prodEdit = [], editIncompleto = null;   // lo que muestra la lista
+
+// Muestra todo lo que coincide (por páginas), así lo que se exporta es
+// exactamente lo que se ve.
+function consultaEdit(conteo){
+  const t = limpiarBusqueda($('e-buscar').value);
+  return db.from('productos')
+    .select('codigo, descripcion, tipo, origen, posicion, etapa, familia, activo',
+            conteo ? { count: 'exact' } : undefined)
+    .or(`codigo.ilike.*${t}*,descripcion.ilike.*${t}*`)
+    .order('codigo');
+}
 
 async function buscarProductos(){
   const texto = $('e-buscar').value.trim();
   const n = ++turnoEdit;
-  if (!texto) { $('e-resultados').innerHTML = '<p class="vacio">Escribí un código o una descripción.</p>'; return; }
-  const { data, error } = await buscarEn('productos', texto, 30, 'codigo, descripcion, tipo, activo');
+  prodEdit = []; editIncompleto = null;
+  $('e-exportar').hidden = true;
+  $('e-resumen').innerHTML = '';
+  if (!limpiarBusqueda(texto)) { $('e-resultados').innerHTML = '<p class="vacio">Escribí un código o una descripción.</p>'; return; }
+  $('e-resultados').innerHTML = '<p class="vacio">Buscando…</p>';
+  const res = await traerCompleto(consultaEdit);
   if (n !== turnoEdit) return;
-  if (error) { $('e-resultados').innerHTML = `<p class="vacio">${esc(error.message)}</p>`; return; }
-  $('e-resultados').innerHTML = data.length === 0
+  if (res.error && !res.filas) { $('e-resultados').innerHTML = `<p class="vacio">${esc(res.error.message)}</p>`; return; }
+
+  prodEdit = res.filas;
+  editIncompleto = resultadoIncompleto(res);
+  const filtro = `«${esc(texto)}»`;
+  $('e-resumen').innerHTML = editIncompleto
+    ? textoIncompleto(editIncompleto, filtro)
+    : `Con ${filtro}: <strong>${prodEdit.length.toLocaleString('es-AR')}</strong> ${prodEdit.length === 1 ? 'producto' : 'productos'}`;
+  $('e-exportar').hidden = !!editIncompleto || prodEdit.length === 0;
+  $('e-resultados').innerHTML = prodEdit.length === 0
     ? '<p class="vacio">Sin resultados.</p>'
-    : data.slice(0, 30).map(f => `
+    : prodEdit.map(f => `
         <button type="button" class="resultado" data-codigo="${esc(f.codigo)}">
           <strong>${esc(f.codigo)}</strong>${f.activo === false ? '<span class="etiqueta">inactivo</span>' : ''}
           <small>${esc(f.descripcion)} · ${esc(f.tipo)}</small>
-        </button>`).join('') +
-      (data.length > 30 ? '<p class="ayuda">Hay más: seguí escribiendo para afinar.</p>' : '');
+        </button>`).join('');
 }
+
+const COLUMNAS_PRODUCTOS = [
+  ['Código', 'codigo'], ['Descripción', 'descripcion'], ['Tipo', 'tipo'],
+  ['Origen', 'origen'], ['Posición', 'posicion'], ['Etapa', 'etapa'],
+  ['Familia', 'familia', 'lista'], ['Activo', 'activo', 'sino'],
+];
+$('e-exportar').onclick = () => {
+  if (editIncompleto || prodEdit.length === 0) return;
+  descargarCSV(['productos', $('e-buscar').value.trim()], COLUMNAS_PRODUCTOS, prodEdit);
+};
+
 $('e-buscar').oninput = () => {
   cerrarFicha();
   clearTimeout(esperaEdit);
@@ -1027,7 +1115,7 @@ async function abrirFicha(codigo){
   }
 
   enFicha = f;
-  $('e-resultados').hidden = true;
+  $('e-listado').hidden = true;
   $('e-ficha').hidden = false;
   $('e-aviso').innerHTML = '';
   $('e-codigo').textContent = f.codigo;
@@ -1049,7 +1137,7 @@ const exigeComposicion = f => f.tipo === 'SE' || (f.tipo === 'COR' && /^F[0-9]/.
 function cerrarFicha(){
   enFicha = null;
   $('e-ficha').hidden = true;
-  $('e-resultados').hidden = false;
+  $('e-listado').hidden = false;
 }
 $('e-volver').onclick = () => { cerrarFicha(); buscarProductos(); $('e-buscar').focus(); };
 
@@ -1113,6 +1201,100 @@ async function desactivar(){
   enFicha = (await leerProducto(f.codigo)).data ?? f;
 }
 
+// ---------- USUARIOS (admin) ----------
+// La lista viene de listar_usuarios() (lee auth.users del lado de la
+// base, solo para admin). Dar, cambiar y quitar acceso escriben en
+// perfiles; las policies y el trigger proteger_rol_propio son la barrera
+// real (ver sql/usuarios.sql). Acá solo no se ofrece lo que no se puede.
+let usuarios = [];
+
+async function cargarUsuarios(){
+  $('u-lista').innerHTML = '<p class="vacio">Cargando…</p>';
+  const { data, error } = await db.rpc('listar_usuarios');
+  if (error) { $('u-lista').innerHTML = ''; avisar('u-aviso', 'No se pudo leer la lista de usuarios:\n' + error.message, false); return; }
+  usuarios = data;
+  pintarUsuarios();
+}
+
+const opcionesRol = actual =>
+  (actual ? '' : '<option value="">Elegí el rol…</option>') +
+  Object.entries(NOMBRE_ROL)
+    .map(([v, t]) => `<option value="${v}"${v === actual ? ' selected' : ''}>${t}</option>`).join('');
+
+function pintarUsuarios(){
+  const sinAcceso = usuarios.filter(u => !u.rol).length;
+  $('u-lista').innerHTML =
+    `<p class="resumen"><strong>${usuarios.length}</strong> ${usuarios.length === 1 ? 'cuenta' : 'cuentas'}` +
+    (sinAcceso ? ` · <strong>${sinAcceso}</strong> sin acceso` : '') + `</p>` +
+    usuarios.map(u => {
+      const propio = u.id === usuarioActual;
+      const alta = u.creado ? new Date(u.creado).toLocaleDateString('es-AR') : '—';
+      const cabeza = `
+        <div class="nombre">${esc(u.nombre || 'Sin nombre')}
+          ${u.rol ? `<span class="rol-chip">${esc(NOMBRE_ROL[u.rol] ?? u.rol)}</span>` : '<span class="rol-chip sin">sin acceso</span>'}
+        </div>
+        <div class="mail">${esc(u.email)}</div>
+        <div class="alta">Alta: ${alta}</div>`;
+      let controles;
+      if (propio) {
+        controles = '<p class="ayuda">Sos vos: no podés cambiar ni quitar tu propio rol.</p>';
+      } else if (!u.rol) {
+        const sugerido = (u.email ?? '').split('@')[0];
+        controles = `<div class="controles">
+          <input data-campo="nombre" placeholder="Nombre" value="${esc(sugerido)}" aria-label="Nombre de ${esc(u.email)}">
+          <select data-campo="rol" aria-label="Rol de ${esc(u.email)}">${opcionesRol('')}</select>
+          <button type="button" class="boton2" data-accion="dar">Dar acceso</button>
+        </div>`;
+      } else {
+        controles = `<div class="controles">
+          <select data-campo="rol" aria-label="Rol de ${esc(u.email)}">${opcionesRol(u.rol)}</select>
+          <button type="button" class="boton2" data-accion="cambiar">Guardar rol</button>
+          <button type="button" class="boton2 peligro" data-accion="quitar">Quitar acceso</button>
+        </div>`;
+      }
+      return `<div class="usr${u.rol ? '' : ' sin'}" data-id="${esc(u.id)}">${cabeza}${controles}</div>`;
+    }).join('');
+}
+
+$('u-lista').onclick = async e => {
+  const boton = e.target.closest('[data-accion]');
+  if (!boton) return;
+  const fila = boton.closest('[data-id]');
+  const u = usuarios.find(x => x.id === fila.dataset.id);
+  if (!u || u.id === usuarioActual) return;
+  const rol = fila.querySelector('[data-campo="rol"]')?.value;
+  const quien = u.nombre || u.email;
+  $('u-aviso').innerHTML = '';
+
+  let res, hecho;
+  if (boton.dataset.accion === 'dar') {
+    const nombre = fila.querySelector('[data-campo="nombre"]').value.trim();
+    if (!nombre) { avisar('u-aviso', 'Falta el nombre.', false); return; }
+    if (!rol)    { avisar('u-aviso', 'Elegí el rol.', false); return; }
+    res = await db.from('perfiles').insert({ id: u.id, nombre, rol }).select('id');
+    hecho = `${nombre} ya tiene acceso como ${NOMBRE_ROL[rol]}.`;
+  } else if (boton.dataset.accion === 'cambiar') {
+    if (rol === u.rol) { avisar('u-aviso', `${quien} ya tiene ese rol.`, false); return; }
+    res = await db.from('perfiles').update({ rol }).eq('id', u.id).select('id');
+    hecho = `${quien} ahora es ${NOMBRE_ROL[rol]}.`;
+  } else {
+    if (!confirm(`¿Quitarle el acceso a ${quien}? Va a poder iniciar sesión, pero no va a ver nada.`)) return;
+    res = await db.from('perfiles').delete().eq('id', u.id).select('id');
+    hecho = `${quien} ya no tiene acceso.`;
+  }
+
+  boton.disabled = true;
+  if (res.error) { boton.disabled = false; avisar('u-aviso', 'La base lo rechazó:\n' + res.error.message, false); return; }
+  // RLS no da error cuando no deja tocar una fila: simplemente no la toca.
+  if (!res.data?.length) {
+    boton.disabled = false;
+    avisar('u-aviso', 'La base no dejó hacer el cambio. Revisá que estén aplicadas las policies de sql/usuarios.sql.', false);
+    return;
+  }
+  avisar('u-aviso', hecho, true);
+  await cargarUsuarios();
+};
+
 // ---------- sesión ----------
 function mostrarLogin(){
   $('app').hidden = true;
@@ -1133,9 +1315,15 @@ function mostrarLogin(){
   stockIncompleto = null;
   enFicha = null;
   $('e-ficha').hidden = true;
-  $('e-resultados').hidden = false;
+  $('e-listado').hidden = false;
   $('e-resultados').innerHTML = '';
   $('e-buscar').value = '';
+  $('e-resumen').innerHTML = '';
+  $('e-exportar').hidden = true;
+  prodEdit = []; editIncompleto = null;
+  usuarios = [];
+  $('u-lista').innerHTML = '';
+  $('u-aviso').innerHTML = '';
 }
 
 let usuarioActual = null;
