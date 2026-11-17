@@ -147,6 +147,68 @@
   .acciones{display:flex;gap:.5rem;margin-top:1rem}
   .resumen{color:var(--gris);font-size:.85rem;margin:.9rem 0 .2rem}
   .resumen strong{color:var(--tinta);font-weight:600}
+
+  /* ====== PLANTA: una mano, guantes, poca luz ======
+     Objetivos de 64px o más, texto grande, contraste alto. */
+  #p-planta{--pl-borde:#171614}
+  .pl-escaneo{display:flex;gap:.5rem}
+  .pl-escaneo input{flex:1;min-width:0;font-size:1.5rem;font-weight:600;padding:1rem .9rem;
+    border:3px solid var(--pl-borde);border-radius:6px;text-transform:uppercase}
+  .pl-escaneo input::placeholder{text-transform:none;font-weight:400;color:var(--gris)}
+  .pl-escaneo input:focus{outline:4px solid var(--accion);outline-offset:2px}
+  .pl-cam{flex:0 0 5rem;border:3px solid var(--pl-borde);background:var(--tinta);color:var(--papel);
+    border-radius:6px;font:inherit;font-size:.85rem;font-weight:600;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.15rem}
+  .pl-cam svg{width:2rem;height:2rem}
+  .pl-ayuda{color:var(--gris);font-size:.9rem;margin:.6rem 0 0;text-align:center}
+  .pl-btn{display:block;width:100%;min-height:4.5rem;margin-top:.75rem;padding:1rem;border-radius:6px;
+    border:3px solid var(--pl-borde);background:var(--campo);color:var(--tinta);
+    font:inherit;font-size:1.35rem;font-weight:700;cursor:pointer;text-align:center}
+  .pl-btn:disabled{opacity:.5;cursor:wait}
+  .pl-btn:focus-visible,.pl-cam:focus-visible{outline:4px solid var(--accion);outline-offset:2px}
+  .pl-btn.entra{background:#155C3B;border-color:#155C3B;color:#fff}
+  .pl-btn.sale{background:#8E1F17;border-color:#8E1F17;color:#fff}
+  .pl-btn.ok{background:var(--tinta);color:var(--papel)}
+  .pl-btn.chico{min-height:3.75rem;font-size:1.1rem;font-weight:600;border-width:2px}
+  .pl-par{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .pl-par .pl-btn{min-height:7rem;font-size:1.6rem}
+  .pl-motivo{text-align:left;font-size:1.2rem}
+  .pl-ficha{background:var(--campo);border:3px solid var(--pl-borde);border-radius:6px;padding:1rem;margin-top:1rem}
+  .pl-cod{font-size:1.9rem;font-weight:800;letter-spacing:-.01em;margin:0;word-break:break-all}
+  .pl-desc{font-size:1.15rem;margin:.2rem 0 .8rem}
+  .pl-datos{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+  .pl-dato small{display:block;color:var(--gris);font-size:.8rem;text-transform:uppercase;letter-spacing:.04em}
+  .pl-dato strong{display:block;font-size:2.4rem;font-weight:800;line-height:1.1}
+  .pl-dato strong.negativo{color:var(--alarma)}
+  .pl-dato strong.falta{font-size:1.2rem;color:var(--alarma);padding-top:.6rem}
+  .pl-sentido{font-size:1.3rem;font-weight:800;margin:1rem 0 0}
+  .pl-sentido.entra{color:#155C3B}
+  .pl-sentido.sale{color:#8E1F17}
+  .pl-cant{width:100%;font-size:3rem;font-weight:800;text-align:center;padding:.6rem;margin-top:.75rem;
+    border:3px solid var(--pl-borde);border-radius:6px}
+  .pl-cant:focus,.pl-texto:focus{outline:4px solid var(--accion);outline-offset:2px}
+  .pl-texto{width:100%;font-size:1.4rem;padding:.9rem;margin-top:.75rem;border:3px solid var(--pl-borde);border-radius:6px}
+  .pl-pregunta{font-size:1.4rem;font-weight:700;margin:1rem 0 0}
+  .pl-msj{border-radius:6px;padding:1rem;margin-top:1rem;font-size:1.15rem;font-weight:600;white-space:pre-wrap}
+  .pl-msj.ok{background:#155C3B;color:#fff}
+  .pl-msj.ok big{display:block;font-size:2rem;font-weight:800}
+  .pl-msj.mal{background:#8E1F17;color:#fff}
+  .pl-msj.info{background:#2A2825;color:#fff}
+  .pl-video{position:fixed;inset:0;background:#000;z-index:10;display:flex;flex-direction:column}
+  .pl-video video{flex:1;width:100%;object-fit:cover;min-height:0}
+  .pl-video .pl-btn{margin:0;border-radius:0;border:0;min-height:5.5rem}
+  .pl-video p{color:#fff;text-align:center;margin:.6rem;font-size:1.1rem}
+  /* Pestaña con contador */
+  .contador{display:inline-block;min-width:1.5rem;margin-left:.3rem;padding:0 .4rem;border-radius:1rem;
+    background:var(--alarma);color:#fff;font-weight:700;font-size:.85rem}
+  nav{flex-wrap:wrap}
+  nav button{min-width:6.5rem}
+  .pend{display:flex;gap:.75rem;align-items:center;padding:.9rem 0;border-bottom:1px solid var(--linea)}
+  .pend .texto{flex:1;min-width:0}
+  .pend .codigo{font-weight:700;font-size:1.05rem}
+  .pend small{display:block;color:var(--gris);font-size:.8rem}
+  </section>
+
   .barra-stock{display:flex;align-items:center;gap:.6rem}
   /* Usuarios */
   .explica{background:var(--campo);border:1px solid var(--linea);border-radius:3px;padding:.8rem .9rem;font-size:.85rem}
@@ -199,10 +261,12 @@
   </div>
 
   <nav id="pestanas">
+    <button id="t-planta" aria-selected="false">Planta</button>
     <button id="t-stock" aria-selected="true">Stock</button>
     <button id="t-mov"   aria-selected="false">Movimiento</button>
     <button id="t-prod"  aria-selected="false">Producto nuevo</button>
     <button id="t-edit"  aria-selected="false">Editar producto</button>
+    <button id="t-pend"  aria-selected="false">Pendientes<span class="contador" id="pend-n" hidden></span></button>
     <button id="t-usr"   aria-selected="false">Usuarios</button>
   </nav>
 
@@ -393,6 +457,28 @@
     </div>
   </section>
 
+  <!-- ====== PLANTA: escaneo frente al estante ====== -->
+  <section id="p-planta" hidden>
+    <!-- 1. Escaneo. Siempre visible arriba: se puede escanear en cualquier paso. -->
+    <form id="pl-form" class="pl-escaneo" autocomplete="off">
+      <input id="pl-codigo" enterkeyhint="go" autocapitalize="characters" spellcheck="false"
+             placeholder="Escaneá el código" aria-label="Código de producto">
+      <button type="button" class="pl-cam" id="pl-cam" aria-label="Escanear con la cámara">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 8v8M10 8v8M13 8v8M17 8v8"/>
+        </svg>Cámara
+      </button>
+    </form>
+
+    <div id="pl-paso"></div>
+  </section>
+
+  <!-- ====== PENDIENTES DE ALTA (admin) ====== -->
+  <section id="p-pend" hidden>
+    <p class="resumen" id="pend-resumen"></p>
+    <div id="pend-lista"></div>
+  </section>
+
   <!-- ====== USUARIOS (admin) ====== -->
   <section id="p-usr" hidden>
     <div class="explica">
@@ -429,10 +515,11 @@ let filas = [];
 
 // ---------- pestañas según rol ----------
 // Esto solo arma la pantalla: lo que cada rol puede hacer lo bloquea la base con RLS.
-const tabs = [['t-stock','p-stock'],['t-mov','p-mov'],['t-prod','p-prod'],['t-edit','p-edit'],['t-usr','p-usr']];
+const tabs = [['t-planta','p-planta'],['t-stock','p-stock'],['t-mov','p-mov'],['t-prod','p-prod'],['t-edit','p-edit'],['t-pend','p-pend'],['t-usr','p-usr']];
+// La primera de cada lista es la que se abre al entrar.
 const PERMISOS = {
-  planta:   ['t-stock', 't-mov'],
-  admin:    ['t-stock', 't-mov', 't-prod', 't-edit', 't-usr'],
+  planta:   ['t-planta', 't-stock', 't-mov'],
+  admin:    ['t-stock', 't-planta', 't-mov', 't-prod', 't-edit', 't-pend', 't-usr'],
   gerencia: ['t-stock'],
 };
 const NOMBRE_ROL = { planta: 'Planta', admin: 'Administración', gerencia: 'Gerencia' };
@@ -446,6 +533,9 @@ function abrir(bot){
   });
   if (bot === 't-stock') cargarStock();
   if (bot === 't-edit' && !enFicha) buscarProductos();
+  if (bot === 't-planta') plInicio();
+  else plCerrarCamara();
+  if (bot === 't-pend') cargarPendientes();
   if (bot === 't-usr') cargarUsuarios();
 }
 tabs.forEach(([bot]) => $(bot).onclick = () => abrir(bot));
@@ -1201,6 +1291,386 @@ async function desactivar(){
   enFicha = (await leerProducto(f.codigo)).data ?? f;
 }
 
+
+// =====================================================//  PLANTA: escanear → producto → Entrada/Salida → motivo →
+//  cantidad → confirmar → (posición si falta) → escanear otra vez.
+//  Pensada para una mano con guantes: cada paso es una pantalla
+//  con pocos botones grandes.
+// ============================================================
+let pl = null;          // { prod, signo, motivo } del movimiento en curso
+let plTurno = 0;        // descarta búsquedas viejas si se escanea rápido
+const plPaso = html => { $('pl-paso').innerHTML = html; };
+const plNombreMotivo = c => c.charAt(0) + c.slice(1).toLowerCase().replaceAll('_', ' ');
+
+// El campo vuelve a tener foco solo. inputmode="none" evita que el
+// teclado del celular tape la pantalla cuando se usa el lector; si el
+// operario toca el campo, quiere escribir y el teclado aparece.
+const plCampo = $('pl-codigo');
+function plEnfocar(){
+  plCampo.setAttribute('inputmode', 'none');
+  plCampo.focus({ preventScroll: true });
+}
+plCampo.addEventListener('pointerdown', () => plCampo.setAttribute('inputmode', 'text'));
+plCampo.addEventListener('blur', () => plCampo.setAttribute('inputmode', 'none'));
+
+// Vuelve al escaneo. msj: aviso que queda a la vista hasta el próximo código.
+function plInicio({ msj = '', sinFoco = false } = {}){
+  pl = null;
+  plCampo.value = '';
+  plPaso(msj || `<p class="pl-ayuda">Escaneá la etiqueta del producto.</p>`);
+  if (!sinFoco) plEnfocar();
+}
+
+// El lector manda el texto y un Enter: el submit del formulario.
+$('pl-form').onsubmit = e => {
+  e.preventDefault();
+  const codigo = plCampo.value.trim();
+  if (codigo) plBuscar(codigo);
+};
+
+// Escapa % y _ para que ilike compare literal (sin mayúsculas/minúsculas).
+const plLiteral = t => t.replace(/[\\%_]/g, c => '\\' + c);
+
+async function plBuscar(texto){
+  const n = ++plTurno;
+  plCampo.value = '';
+  plCampo.blur();
+  plPaso(`<div class="pl-msj info">Buscando ${esc(texto)}…</div>`);
+
+  // 1. El código tal cual, sin importar mayúsculas.
+  let { data, error } = await db.from('productos')
+    .select('codigo, descripcion, posicion, activo')
+    .ilike('codigo', plLiteral(texto)).limit(2);
+  // 2. Si no está, puede ser un código expandido de una familia con X:
+  //    CUE-61311 vive en el estante de CUE-613X1.
+  let viaFamilia = false;
+  if (!error && !data.length) {
+    ({ data, error } = await db.from('productos')
+      .select('codigo, descripcion, posicion, activo')
+      .contains('familia', [texto.toUpperCase()]).limit(2));
+    viaFamilia = !!data?.length;
+  }
+  if (n !== plTurno) return;
+  if (error) { plError('No se pudo buscar el código:\n' + error.message); return; }
+  if (!data.length) { plNoExiste(texto.toUpperCase()); return; }
+
+  const prod = data.find(p => p.codigo === texto) ?? data[0];
+  prod.stock = await plStock(prod.codigo);
+  if (n !== plTurno) return;
+  plFicha(prod, viaFamilia ? texto.toUpperCase() : null);
+}
+
+// Stock desde la vista. Un producto sin movimientos puede no estar en la vista: es 0.
+async function plStock(codigo){
+  const { data, error } = await db.from('stock').select('stock').eq('codigo', codigo).maybeSingle();
+  if (error) return null;
+  return Number(data?.stock ?? 0);
+}
+
+function plFichaHtml(p){
+  const st = p.stock === null ? '?' : p.stock.toLocaleString('es-AR');
+  return `<div class="pl-ficha">
+    <p class="pl-cod">${esc(p.codigo)}${p.activo === false ? '<span class="etiqueta">inactivo</span>' : ''}</p>
+    <p class="pl-desc">${esc(p.descripcion)}</p>
+    <div class="pl-datos">
+      <div class="pl-dato"><small>Stock</small><strong class="${p.stock < 0 ? 'negativo' : ''}">${st}</strong></div>
+      <div class="pl-dato"><small>Posición</small>${p.posicion
+          ? `<strong>${esc(p.posicion)}</strong>` : '<strong class="falta">Sin cargar</strong>'}</div>
+    </div>
+  </div>`;
+}
+
+// 2. Producto encontrado: Entrada o Salida.
+function plFicha(prod, familia){
+  pl = { prod };
+  plPaso(
+    (familia ? `<div class="pl-msj info">${esc(familia)} es parte de la familia ${esc(prod.codigo)}.</div>` : '') +
+    plFichaHtml(prod) + `
+    <div class="pl-par">
+      <button type="button" class="pl-btn entra" data-signo="1">↑ Entrada</button>
+      <button type="button" class="pl-btn sale"  data-signo="-1">↓ Salida</button>
+    </div>
+    <button type="button" class="pl-btn chico" data-accion="cancelar">Cancelar</button>`);
+}
+
+// 3. Motivos del signo elegido, de la tabla motivos. STOCK_INICIAL queda
+//    afuera: es el del alta de producto, no un movimiento de planta.
+function plMotivos(signo){
+  pl.signo = signo;
+  const lista = motivos.filter(m => Number(m.signo) === signo && m.codigo !== 'STOCK_INICIAL');
+  const cls = signo > 0 ? 'entra' : 'sale';
+  plPaso(plFichaHtml(pl.prod) + `
+    <p class="pl-sentido ${cls}">${signo > 0 ? '↑ Entrada' : '↓ Salida'} · ¿Por qué?</p>
+    ${lista.length
+      ? lista.map(m => `<button type="button" class="pl-btn pl-motivo" data-motivo="${esc(m.codigo)}">${esc(plNombreMotivo(m.codigo))}</button>`).join('')
+      : `<div class="pl-msj mal">No hay motivos cargados para ${signo > 0 ? 'entradas' : 'salidas'}.</div>`}
+    <button type="button" class="pl-btn chico" data-accion="atras">Atrás</button>`);
+}
+
+// 4. Cantidad, siempre positiva. El signo lo pone la base (aplicar_signo).
+function plCantidad(motivo){
+  pl.motivo = motivo;
+  const cls = pl.signo > 0 ? 'entra' : 'sale';
+  plPaso(plFichaHtml(pl.prod) + `
+    <p class="pl-sentido ${cls}">${pl.signo > 0 ? '↑' : '↓'} ${esc(plNombreMotivo(motivo))}</p>
+    <form id="pl-cant-form" autocomplete="off" novalidate>
+      <input id="pl-cant" class="pl-cant" type="number" inputmode="numeric" pattern="[0-9]*"
+             min="1" step="1" placeholder="Cantidad" aria-label="Cantidad" enterkeyhint="done">
+      <button class="pl-btn ${cls}" id="pl-confirmar">Confirmar</button>
+    </form>
+    <div id="pl-cant-aviso"></div>
+    <button type="button" class="pl-btn chico" data-accion="atras-motivo">Atrás</button>`);
+  $('pl-cant').focus();
+  $('pl-cant-form').onsubmit = e => { e.preventDefault(); plConfirmar(); };
+}
+
+// 5. Registrar.
+async function plConfirmar(){
+  const cant = Number($('pl-cant').value);
+  const aviso = $('pl-cant-aviso');
+  // Cortesía: la base valida de verdad.
+  if (!Number.isInteger(cant) || cant <= 0) {
+    aviso.innerHTML = '<div class="pl-msj mal">Poné una cantidad entera mayor que cero.</div>';
+    $('pl-cant').focus();
+    return;
+  }
+  const b = $('pl-confirmar');
+  if (b.disabled) return;          // doble toque con guantes
+  b.disabled = true;
+  const { error } = await db.from('movimientos').insert({
+    producto: pl.prod.codigo,
+    fecha:    hoy(),
+    cantidad: cant,
+    motivo:   pl.motivo,
+  });
+  if (error) {
+    b.disabled = false;
+    aviso.innerHTML = `<div class="pl-msj mal">La base lo rechazó:\n${esc(error.message)}</div>`;
+    return;
+  }
+  const prod = pl.prod;
+  prod.stock = await plStock(prod.codigo);
+  const hecho = `${pl.signo > 0 ? '+' : '−'}${cant.toLocaleString('es-AR')} ${esc(prod.codigo)}`;
+  const listo = `<div class="pl-msj ok">✓ ${hecho}<big>Stock: ${prod.stock === null ? '?' : prod.stock.toLocaleString('es-AR')}</big></div>`;
+
+  if (!prod.posicion) plPosicion(prod, listo);
+  else plInicio({ msj: listo });
+}
+
+// 6. Opcional: el producto no tiene posición. Se guarda solo si estaba vacía.
+function plPosicion(prod, listo){
+  pl = { prod };
+  plPaso(listo + `
+    <p class="pl-pregunta">¿Dónde está ${esc(prod.codigo)}?</p>
+    <form id="pl-pos-form" autocomplete="off">
+      <input id="pl-pos" class="pl-texto" maxlength="20" autocapitalize="characters"
+             placeholder="Ej.: D3" aria-label="Posición" enterkeyhint="done">
+      <button class="pl-btn ok" id="pl-pos-guardar">Guardar posición</button>
+    </form>
+    <div id="pl-pos-aviso"></div>
+    <button type="button" class="pl-btn chico" data-accion="saltear" id="pl-saltear">Saltear</button>`);
+  $('pl-pos').focus();
+  $('pl-pos-form').onsubmit = async e => {
+    e.preventDefault();
+    const pos = $('pl-pos').value.trim().toUpperCase();
+    if (!pos) { plInicio({ msj: listo }); return; }
+    const b = $('pl-pos-guardar');
+    if (b.disabled) return;
+    b.disabled = true;
+    // Función de la base: planta no edita productos, solo puede completar
+    // una posición vacía.
+    const { error } = await db.rpc('cargar_posicion', { p_codigo: prod.codigo, p_posicion: pos });
+    if (error) {
+      b.disabled = false;
+      $('pl-pos-aviso').innerHTML = `<div class="pl-msj mal">No se guardó la posición:\n${esc(error.message)}</div>`;
+      return;
+    }
+    plInicio({ msj: listo.replace('</div>', ` · Posición ${esc(pos)}</div>`) });
+  };
+  $('pl-saltear').onclick = () => plInicio({ msj: listo });
+}
+
+// Código que no está en el catálogo: se puede dejar un pedido de alta.
+function plNoExiste(codigo){
+  pl = { codigo };
+  plPaso(`
+    <div class="pl-msj mal">${esc(codigo)}\nNo existe en el catálogo.</div>
+    <p class="pl-pregunta">¿Pedir el alta?</p>
+    <p class="pl-ayuda" style="text-align:left">El movimiento no se registra hasta que el producto exista.</p>
+    <form id="pl-alta-form" autocomplete="off">
+      <input id="pl-alta-desc" class="pl-texto" maxlength="200" placeholder="¿Qué es? Ej.: tapa olla 24"
+             aria-label="Descripción" enterkeyhint="send">
+      <button class="pl-btn ok" id="pl-alta-enviar">Pedir alta</button>
+    </form>
+    <div id="pl-alta-aviso"></div>
+    <button type="button" class="pl-btn chico" data-accion="cancelar">Seguir sin pedir</button>`);
+  $('pl-alta-form').onsubmit = async e => {
+    e.preventDefault();
+    const desc = $('pl-alta-desc').value.trim();
+    if (!desc) {
+      $('pl-alta-aviso').innerHTML = '<div class="pl-msj mal">Escribí qué es, para que administración lo pueda dar de alta.</div>';
+      $('pl-alta-desc').focus();
+      return;
+    }
+    const b = $('pl-alta-enviar');
+    if (b.disabled) return;
+    b.disabled = true;
+    // Quién y cuándo los pone la base.
+    const { error } = await db.from('pedidos_alta').insert({ codigo, descripcion: desc });
+    if (error?.code === '23505') {      // ya hay un pedido abierto para ese código
+      plInicio({ msj: `<div class="pl-msj info">${esc(codigo)} ya estaba pedido. Administración lo tiene en pendientes.</div>` });
+      return;
+    }
+    if (error) {
+      b.disabled = false;
+      $('pl-alta-aviso').innerHTML = `<div class="pl-msj mal">La base lo rechazó:\n${esc(error.message)}</div>`;
+      return;
+    }
+    plInicio({ msj: `<div class="pl-msj ok">✓ Alta pedida: ${esc(codigo)}<br>Cuando exista, volvé a escanearlo para cargar el movimiento.</div>` });
+    if (permitidas.includes('t-pend')) contarPendientes();
+  };
+}
+
+function plError(texto){
+  plInicio({ msj: `<div class="pl-msj mal">${esc(texto)}</div>` });
+}
+
+// Botones de los pasos (delegado: el contenido se rearma en cada paso).
+$('pl-paso').addEventListener('click', e => {
+  const b = e.target.closest('button');
+  if (!b || !pl) return;
+  if (b.dataset.signo)  plMotivos(Number(b.dataset.signo));
+  if (b.dataset.motivo) plCantidad(b.dataset.motivo);
+  const a = b.dataset.accion;
+  if (a === 'cancelar') plInicio();
+  if (a === 'atras') plFicha(pl.prod);
+  if (a === 'atras-motivo') plMotivos(pl.signo);
+});
+
+// ---------- cámara ----------
+// BarcodeDetector nativo donde existe (Android/Chrome); si no (iPhone),
+// ZXing, que se baja recién la primera vez que se toca el botón.
+const FORMATOS = ['code_128', 'code_39', 'code_93', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'itf', 'codabar', 'qr_code', 'data_matrix'];
+let camara = null;   // { stream, parar }
+
+async function plAbrirCamara(){
+  if (camara) return;
+  if (!navigator.mediaDevices?.getUserMedia) {
+    plError('Este navegador no deja usar la cámara. Usá el lector o escribí el código.');
+    return;
+  }
+  const capa = document.createElement('div');
+  capa.className = 'pl-video';
+  capa.innerHTML = `<video playsinline muted></video>
+    <p>Apuntá al código de barras</p>
+    <button type="button" class="pl-btn sale">Cerrar cámara</button>`;
+  document.body.append(capa);
+  const video = capa.querySelector('video');
+  let activo = true;
+  camara = { parar(){
+    activo = false;
+    camara?.stream?.getTracks().forEach(t => t.stop());
+    capa.remove();
+    camara = null;
+  } };
+  capa.querySelector('button').onclick = () => { plCerrarCamara(); plEnfocar(); };
+
+  const leido = codigo => {
+    if (!activo) return;
+    plCerrarCamara();
+    navigator.vibrate?.(80);
+    plBuscar(codigo.trim());
+  };
+
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    if (!activo) { stream.getTracks().forEach(t => t.stop()); return; }
+    camara.stream = stream;
+    video.srcObject = stream;
+    await video.play();
+
+    const nativos = 'BarcodeDetector' in window ? await BarcodeDetector.getSupportedFormats() : [];
+    if (nativos.length) {
+      const detector = new BarcodeDetector({ formats: FORMATOS.filter(f => nativos.includes(f)) });
+      const mirar = async () => {
+        if (!activo) return;
+        try {
+          const [r] = await detector.detect(video);
+          if (r?.rawValue) return leido(r.rawValue);
+        } catch { /* cuadro sin imagen todavía */ }
+        setTimeout(mirar, 150);
+      };
+      mirar();
+    } else {
+      const { BrowserMultiFormatReader } = await import('https://esm.sh/@zxing/browser@0.1.5');
+      if (!activo) return;
+      const lector = new BrowserMultiFormatReader();
+      const control = await lector.decodeFromVideoElement(video, r => { if (r) leido(r.getText()); });
+      const parar = camara.parar;
+      camara.parar = () => { control.stop(); parar(); };
+      if (!activo) control.stop();
+    }
+  } catch (err) {
+    plCerrarCamara();
+    plError('No se pudo abrir la cámara: ' + (err?.name === 'NotAllowedError'
+      ? 'falta el permiso. Habilitalo en el navegador.' : (err?.message ?? err)));
+  }
+}
+function plCerrarCamara(){ camara?.parar(); }
+$('pl-cam').onclick = plAbrirCamara;
+
+// ============================================================
+//  PENDIENTES DE ALTA (admin)
+// ============================================================
+async function contarPendientes(){
+  const { count, error } = await db.from('pedidos_alta')
+    .select('id', { count: 'exact', head: true }).eq('resuelto', false);
+  const n = $('pend-n');
+  n.hidden = !!error || !count;
+  n.textContent = count ?? '';
+}
+
+async function cargarPendientes(){
+  $('pend-resumen').textContent = '';
+  const { data, error } = await db.from('pedidos_alta')
+    .select('id, codigo, descripcion, pedido_en, perfiles:pedido_por(nombre)')
+    .eq('resuelto', false).order('pedido_en');
+  if (error) { $('pend-lista').innerHTML = `<p class="vacio">${esc(error.message)}</p>`; return; }
+  const n = $('pend-n');
+  n.hidden = !data.length;
+  n.textContent = data.length;
+  $('pend-resumen').innerHTML = data.length
+    ? `<strong>${data.length}</strong> ${data.length === 1 ? 'pedido' : 'pedidos'} de alta sin resolver`
+    : '';
+  const fecha = t => new Date(t).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
+  $('pend-lista').innerHTML = data.length === 0
+    ? '<p class="vacio">No hay pedidos de alta pendientes.</p>'
+    : data.map(p => `
+      <div class="pend">
+        <div class="texto">
+          <div class="codigo">${esc(p.codigo)}</div>
+          <div>${esc(p.descripcion)}</div>
+          <small>${fecha(p.pedido_en)} · ${esc(p.perfiles?.nombre ?? '—')}</small>
+        </div>
+        <button type="button" class="boton2" data-resolver="${p.id}">Resuelto</button>
+      </div>`).join('');
+}
+
+$('pend-lista').addEventListener('click', async e => {
+  const b = e.target.closest('[data-resolver]');
+  if (!b) return;
+  b.disabled = true;
+  // Quién y cuándo lo resolvió lo pone la base.
+  const { data, error } = await db.from('pedidos_alta')
+    .update({ resuelto: true }).eq('id', b.dataset.resolver).select('id');
+  if (error || !data?.length) {
+    b.disabled = false;
+    $('pend-resumen').innerHTML = `<div class="aviso mal">No se pudo marcar como resuelto${error ? ':\n' + esc(error.message) : '.'}</div>`;
+    return;
+  }
+  cargarPendientes();
+});
+
 // ---------- USUARIOS (admin) ----------
 // La lista viene de listar_usuarios() (lee auth.users del lado de la
 // base, solo para admin). Dar, cambiar y quitar acceso escriben en
@@ -1323,6 +1793,10 @@ function mostrarLogin(){
   $('e-listado').hidden = false;
   $('e-resultados').innerHTML = '';
   $('e-buscar').value = '';
+  plCerrarCamara();
+  plInicio({ sinFoco: true });
+  $('pend-n').hidden = true;
+  $('pend-lista').innerHTML = '';
   $('e-resumen').innerHTML = '';
   $('e-exportar').hidden = true;
   prodEdit = []; editIncompleto = null;
@@ -1354,6 +1828,7 @@ async function entrarCon(user){
   $('s-rol').textContent = NOMBRE_ROL[perfil.rol];
   armarPantalla(perfil.rol);
   if (permitidas.includes('t-mov')) cargarMotivos();
+  if (permitidas.includes('t-pend')) contarPendientes();
 }
 
 db.auth.onAuthStateChange((_evento, sesion) => {

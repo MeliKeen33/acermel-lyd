@@ -224,8 +224,11 @@ Funcionando: base con tablas `productos` y `movimientos` de prueba, vista
 `stock`, y una página que lee y escribe desde el celular. Es un casco para
 validar la arquitectura, no el modelo final.
 
-Próximo: reemplazar el esquema de prueba por el modelo completo, después
-login y roles, después la pantalla de planta con escaneo.
+Pantalla de planta con escaneo (pestaña Planta, roles planta y admin):
+escanear producto → Entrada/Salida → motivo → cantidad → confirmar. Si el
+código no existe deja un pedido en `pedidos_alta`, que admin resuelve en la
+pestaña Pendientes. La posición faltante se completa con la función
+`cargar_posicion`. Esquema en `sql/planta_pedidos_alta.sql`.
 
 El Excel original se está limpiando en paralelo. La migración con fecha de
 corte viene después.
