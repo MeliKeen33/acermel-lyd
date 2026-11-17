@@ -69,9 +69,13 @@
   .fila .cant{font-size:1.5rem;font-weight:600;letter-spacing:-.02em}
   .fila .cant.negativo{color:var(--alarma)}
   .fila .donde{color:var(--gris);font-size:.75rem;min-width:2rem;text-align:right}
-  .fila .tipo{display:inline-block;margin-left:.4rem;padding:0 .3rem;border:1px solid var(--linea);
+  .fila .tipo,.et-fila .tipo{display:inline-block;margin-left:.4rem;padding:0 .3rem;border:1px solid var(--linea);
     border-radius:2px;color:var(--gris);font-size:.7rem;font-weight:500;vertical-align:1px}
   /* etapa es texto libre y puede ser largo: corta en varias líneas, nunca ensancha la fila */
+  .copiar{margin-left:.4rem;padding:.15rem .45rem;border:1px solid var(--linea);background:var(--campo);
+    color:var(--gris);border-radius:3px;font:inherit;font-size:.7rem;cursor:pointer;vertical-align:1px}
+  .copiar:focus-visible{outline:2px solid var(--accion);outline-offset:2px}
+  .copiar.ok{color:var(--accion);border-color:var(--accion)}
   .fila .etapa{color:var(--gris);font-size:.75rem;margin-top:.15rem;
     white-space:normal;overflow-wrap:anywhere}
   .filtros{display:flex;gap:.35rem;margin-top:.5rem}
@@ -207,6 +211,36 @@
   .pend .texto{flex:1;min-width:0}
   .pend .codigo{font-weight:700;font-size:1.05rem}
   .pend small{display:block;color:var(--gris);font-size:.8rem}
+  /* Dos tipos de pendiente, dos problemas distintos */
+  .pend-grupo{font-size:.95rem;font-weight:600;margin:1.25rem 0 .2rem}
+  .pend-tipo{display:inline-block;font-size:.7rem;font-weight:600;padding:.05rem .4rem;border-radius:2px;
+    margin-bottom:.2rem;vertical-align:1px}
+  .pend-tipo.sin{background:#8E1F17;color:#fff}
+  .pend-tipo.esc{border:1px solid var(--linea);color:var(--gris)}
+  .pend.sin{border-left:3px solid #8E1F17;padding-left:.7rem}
+  .pend .dato{font-size:.85rem;margin-top:.15rem}
+  .pend .dato b{font-weight:600}
+  .pend-foto{display:block;margin-top:.4rem}
+  .pend-foto img{display:block;max-width:9rem;max-height:9rem;border-radius:3px;border:1px solid var(--linea)}
+
+  /* Planta: "No sé qué es esto" */
+  .pl-label{display:block;font-size:1.05rem;font-weight:600;color:var(--tinta);margin:1rem 0 0}
+  textarea.pl-texto{resize:vertical;font:inherit;font-size:1.25rem}
+  .pl-foto-prev{display:flex;align-items:center;gap:.75rem;margin-top:.75rem}
+  .pl-foto-prev img{width:7rem;height:7rem;object-fit:cover;border-radius:6px;border:3px solid var(--pl-borde)}
+
+  /* Movimientos registrados */
+  .lb-fila{display:flex;gap:.75rem;align-items:baseline;padding:.75rem 0;border-bottom:1px solid var(--linea)}
+  .lb-fila .texto{flex:1;min-width:0}
+  .lb-fecha{font-size:.8rem;color:var(--gris)}
+  .lb-prod{font-weight:600;font-size:.9rem}
+  .lb-prod small{font-weight:400;color:var(--gris);margin-left:.3rem}
+  .lb-meta{font-size:.8rem;color:var(--gris);overflow-wrap:anywhere}
+  .lb-nota{font-size:.8rem;margin-top:.15rem;overflow-wrap:anywhere}
+  .lb-cant{font-size:1.3rem;font-weight:700;white-space:nowrap}
+  .lb-cant.entra{color:var(--accion)}
+  .lb-cant.sale{color:var(--alarma)}
+  .lb-exacto{display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem;font-size:.85rem}
   </section>
 
   .barra-stock{display:flex;align-items:center;gap:.6rem}
@@ -226,6 +260,41 @@
   .rol-chip.sin{border-color:var(--alarma);color:var(--alarma);font-weight:600}
   .barra-stock .resumen{flex:1;min-width:0}
   .barra-stock .boton2{margin-top:.5rem}
+  /* ---------- Etiquetas ---------- */
+  .paso{font-size:.95rem;font-weight:600;margin:1.5rem 0 .2rem}
+  .paso:first-child{margin-top:0}
+  .et-fila{display:flex;align-items:center;gap:.6rem;margin:0;padding:.55rem 0;border-bottom:1px solid var(--linea);color:var(--tinta);font-size:.9rem;cursor:pointer}
+  .et-fila input{width:auto;margin:0}
+  .et-fila .texto{flex:1;min-width:0;font-size:.9rem}
+  .et-fila .texto small{display:block;color:var(--gris);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .formato{display:grid;grid-template-columns:repeat(auto-fill,minmax(8.5rem,1fr));gap:0 .6rem}
+  .tandas{display:flex;align-items:center;gap:.5rem;margin-top:.8rem}
+  .tandas span{flex:1;text-align:center;font-size:.9rem}
+
+  /* La hoja: medidas reales en mm. En pantalla se ve como papel. */
+  #hoja-caja{overflow-x:auto;padding:0 1rem 3rem}
+  .pagina{width:210mm;height:297mm;margin:0 auto 1rem;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);
+    display:grid;align-content:start;justify-content:start;overflow:hidden;color:#000}
+  .etq{display:flex;flex-direction:column;min-width:0;min-height:0;padding:1.5mm;overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif}
+  .pagina.bordes .etq{outline:.2mm dashed #999;outline-offset:-.1mm}
+  .etq-cod{font-weight:700;font-size:calc(var(--alto) * .13mm);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .etq-barras{flex:1;min-height:0;width:100%;margin:.6mm 0}
+  .etq-barras svg{display:block;width:100%;height:100%}
+  .etq-desc{font-size:calc(var(--alto) * .095mm);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .etq-error{flex:1;display:flex;align-items:center;font-size:2.6mm;color:#a5281f}
+  .etq.fina{outline:.4mm solid #a5281f}
+
+  @media print{
+    @page{size:A4;margin:0}
+    /* Solo con la pestaña Etiquetas abierta: se imprime la hoja y nada más. */
+    body.modo-etiquetas{background:#fff}
+    body.modo-etiquetas > *:not(#hoja-caja){display:none !important}
+    body.modo-etiquetas #hoja-caja{display:block !important;overflow:visible;padding:0}
+    body.modo-etiquetas .pagina{margin:0;box-shadow:none;break-after:page}
+    body.modo-etiquetas .pagina:last-child{break-after:auto}
+    body.modo-etiquetas .etq.fina{outline:none}
+  }
 </style>
 </head>
 <body>
@@ -264,8 +333,10 @@
     <button id="t-planta" aria-selected="false">Planta</button>
     <button id="t-stock" aria-selected="true">Stock</button>
     <button id="t-mov"   aria-selected="false">Movimiento</button>
+    <button id="t-libro" aria-selected="false">Movimientos registrados</button>
     <button id="t-prod"  aria-selected="false">Producto nuevo</button>
     <button id="t-edit"  aria-selected="false">Editar producto</button>
+    <button id="t-etq"   aria-selected="false">Etiquetas</button>
     <button id="t-pend"  aria-selected="false">Pendientes<span class="contador" id="pend-n" hidden></span></button>
     <button id="t-usr"   aria-selected="false">Usuarios</button>
   </nav>
@@ -279,6 +350,12 @@
       <button type="button" data-tipo="SE"  aria-pressed="false" title="Semielaborados">SE</button>
       <button type="button" data-tipo="ACC" aria-pressed="false" title="Accesorios">ACC</button>
       <button type="button" data-tipo="MP"  aria-pressed="false" title="Materias primas">MP</button>
+    </div>
+    <div class="filtros" id="filtro-origen" role="group" aria-label="Filtrar por origen">
+      <button type="button" data-origen="" aria-pressed="true">Todos</button>
+      <button type="button" data-origen="fabricado" aria-pressed="false">Fabricado</button>
+      <button type="button" data-origen="comprado"  aria-pressed="false">Comprado</button>
+      <button type="button" data-origen="importado" aria-pressed="false">Importado</button>
     </div>
     <div class="barra-stock">
       <p id="resumen" class="resumen" aria-live="polite"></p>
@@ -453,6 +530,10 @@
         <button type="button" class="boton2" id="e-volver">Volver a buscar</button>
         <button type="button" class="boton2 peligro" id="e-eliminar">Eliminar producto</button>
       </div>
+
+      <p class="titulo-bloque" style="margin-top:1.5rem">Últimos movimientos</p>
+      <div id="e-movs"></div>
+      <button type="button" class="boton2" id="e-movs-todos" hidden style="margin-top:.6rem">Ver todos en Movimientos registrados</button>
       <div id="e-aviso"></div>
     </div>
   </section>
@@ -470,7 +551,31 @@
       </button>
     </form>
 
+    <!-- Sin escanear: llegó algo y nadie sabe qué es. -->
+    <button type="button" class="pl-btn chico" id="pl-nose">No sé qué es esto</button>
+
     <div id="pl-paso"></div>
+  </section>
+
+  <!-- ====== MOVIMIENTOS REGISTRADOS (admin y gerencia) ====== -->
+  <section id="p-libro" hidden>
+    <div class="formato">
+      <div><label for="lb-desde">Desde</label><input id="lb-desde" type="date"></div>
+      <div><label for="lb-hasta">Hasta</label><input id="lb-hasta" type="date"></div>
+      <div><label for="lb-motivo">Motivo</label><select id="lb-motivo"><option value="">Todos</option></select></div>
+      <div><label for="lb-usuario">Usuario</label><select id="lb-usuario"><option value="">Todos</option></select></div>
+    </div>
+    <label for="lb-prod">Producto</label>
+    <input id="lb-prod" placeholder="Código o descripción" autocomplete="off">
+    <div id="lb-exacto"></div>
+    <div class="barra-stock">
+      <p id="lb-resumen" class="resumen" aria-live="polite"></p>
+      <button type="button" class="boton2" id="lb-limpiar" hidden>Limpiar filtros</button>
+      <button type="button" class="boton2" id="lb-exportar" hidden>Exportar</button>
+    </div>
+    <div id="lb-aviso"></div>
+    <div id="lb-lista"></div>
+    <button type="button" class="boton2" id="lb-mas" hidden style="margin-top:.8rem;width:100%">Cargar más</button>
   </section>
 
   <!-- ====== PENDIENTES DE ALTA (admin) ====== -->
@@ -480,15 +585,61 @@
   </section>
 
   <!-- ====== USUARIOS (admin) ====== -->
-  <section id="p-usr" hidden>
-    <div class="explica">
-      <strong>Cómo se da acceso a una persona</strong>
-      <ol>
-        <li>La cuenta se crea en Supabase: <em>Authentication → Users → Add user</em>, con su mail y una contraseña.</li>
-        <li>Aparece en esta lista como <span class="rol-chip sin">sin acceso</span>. Elegí su rol y tocá <em>Dar acceso</em>.</li>
-      </ol>
-      <p class="ayuda">Sin rol puede iniciar sesión pero no ve nada. Tu propio rol no se puede cambiar ni quitar desde acá.</p>
+  <!-- ====== ETIQUETAS (admin) ====== -->
+  <section id="p-etq" hidden>
+    <h2 class="paso">1. Elegí los productos</h2>
+    <input id="et-buscar" placeholder="Buscar por código o descripción" autocomplete="off">
+    <div class="filtros" id="et-tipo" role="group" aria-label="Filtrar por tipo">
+      <button type="button" data-tipo="" aria-pressed="true">Todos</button>
+      <button type="button" data-tipo="COR" aria-pressed="false" title="Cortes">COR</button>
+      <button type="button" data-tipo="SE"  aria-pressed="false" title="Semielaborados">SE</button>
+      <button type="button" data-tipo="ACC" aria-pressed="false" title="Accesorios">ACC</button>
+      <button type="button" data-tipo="MP"  aria-pressed="false" title="Materias primas">MP</button>
     </div>
+    <div class="filtros" id="et-origen" role="group" aria-label="Filtrar por origen">
+      <button type="button" data-origen="" aria-pressed="true">Todos</button>
+      <button type="button" data-origen="fabricado" aria-pressed="false">Fabricado</button>
+      <button type="button" data-origen="comprado"  aria-pressed="false">Comprado</button>
+      <button type="button" data-origen="importado" aria-pressed="false">Importado</button>
+    </div>
+    <div class="barra-stock">
+      <p id="et-resumen" class="resumen" aria-live="polite"></p>
+      <button type="button" class="boton2" id="et-todos" hidden>Marcar todos</button>
+      <button type="button" class="boton2" id="et-ninguno" hidden>Desmarcar todos</button>
+    </div>
+    <div id="et-lista"><p class="vacio">Buscá o filtrá para ver productos.</p></div>
+    <div class="barra-stock">
+      <p id="et-sel" class="resumen" aria-live="polite"></p>
+      <button type="button" class="boton2" id="et-vaciar" hidden>Vaciar selección</button>
+    </div>
+
+    <h2 class="paso">2. Formato</h2>
+    <div class="formato">
+      <div><label for="et-cols">Por fila</label><input id="et-cols" type="number" inputmode="numeric" min="1" max="10" step="1"></div>
+      <div><label for="et-ancho">Ancho (mm)</label><input id="et-ancho" type="number" inputmode="decimal" min="10" step="0.5"></div>
+      <div><label for="et-alto">Alto (mm)</label><input id="et-alto" type="number" inputmode="decimal" min="10" step="0.5"></div>
+      <div><label for="et-sep">Separación (mm)</label><input id="et-sep" type="number" inputmode="decimal" min="0" step="0.5"></div>
+      <div><label for="et-margen">Margen de la hoja (mm)</label><input id="et-margen" type="number" inputmode="decimal" min="0" step="0.5"></div>
+      <div><label for="et-hojas">Hojas por tanda</label><input id="et-hojas" type="number" inputmode="numeric" min="1" step="1"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="et-bordes"> Marcar bordes para cortar</label>
+    <button type="button" class="boton2" id="et-ajustar" style="margin-top:.8rem">Ajustar el ancho para que entren justas por fila</button>
+    <p class="ayuda">Hoja A4. Al imprimir, elegí escala 100 % (o "Tamaño real") y sin encabezados ni pies de página.</p>
+    <div id="et-formato-aviso"></div>
+
+    <h2 class="paso">3. Imprimir</h2>
+    <div class="tandas">
+      <button type="button" class="boton2" id="et-ant" aria-label="Tanda anterior">‹ Anterior</button>
+      <span id="et-tanda">—</span>
+      <button type="button" class="boton2" id="et-sig" aria-label="Tanda siguiente">Siguiente ›</button>
+    </div>
+    <button class="enviar" id="et-imprimir" disabled>Imprimir</button>
+    <div id="et-aviso"></div>
+    <p class="ayuda">La vista previa de la tanda está debajo, a tamaño real.</p>
+  </section>
+
+  <section id="p-usr" hidden>
+    <p class="explica">Para dar de alta usuarios, ingresá a Supabase → <em>Authentication</em> → <em>Users</em> → <em>Add user</em> → <em>Create new user</em>.</p>
     <div id="u-aviso"></div>
     <div id="u-lista"></div>
   </section>
@@ -496,6 +647,15 @@
   </div><!-- /app -->
 
 </main>
+
+<!-- Hoja de etiquetas: fuera de main para poder imprimirla sola. -->
+<div id="hoja-caja" hidden></div>
+
+<!-- Code 128: JsBarcode con versión fija; integrity hace que el navegador
+     la rechace si el archivo del CDN cambia. -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"
+        integrity="sha384-Kk5SjBOKprEnGfyBWfD2zROFd1Cu8kwOXxG2GIhYPcoDL2rBJS9P8Ud1ZMy4412a"
+        crossorigin="anonymous"></script>
 
 <script type="module">
 // ============================================================
@@ -515,12 +675,12 @@ let filas = [];
 
 // ---------- pestañas según rol ----------
 // Esto solo arma la pantalla: lo que cada rol puede hacer lo bloquea la base con RLS.
-const tabs = [['t-planta','p-planta'],['t-stock','p-stock'],['t-mov','p-mov'],['t-prod','p-prod'],['t-edit','p-edit'],['t-pend','p-pend'],['t-usr','p-usr']];
+const tabs = [['t-planta','p-planta'],['t-stock','p-stock'],['t-mov','p-mov'],['t-libro','p-libro'],['t-prod','p-prod'],['t-edit','p-edit'],['t-etq','p-etq'],['t-pend','p-pend'],['t-usr','p-usr']];
 // La primera de cada lista es la que se abre al entrar.
 const PERMISOS = {
-  planta:   ['t-planta', 't-stock', 't-mov'],
-  admin:    ['t-stock', 't-planta', 't-mov', 't-prod', 't-edit', 't-pend', 't-usr'],
-  gerencia: ['t-stock'],
+  planta:   ['t-planta', 't-stock'],
+  admin:    ['t-stock', 't-planta', 't-mov', 't-libro', 't-prod', 't-edit', 't-etq', 't-pend', 't-usr'],
+  gerencia: ['t-stock', 't-libro'],
 };
 const NOMBRE_ROL = { planta: 'Planta', admin: 'Administración', gerencia: 'Gerencia' };
 let permitidas = [];
@@ -537,6 +697,10 @@ function abrir(bot){
   else plCerrarCamara();
   if (bot === 't-pend') cargarPendientes();
   if (bot === 't-usr') cargarUsuarios();
+  if (bot === 't-libro') lbAbrir();
+  // La hoja de etiquetas solo existe (en pantalla y al imprimir) con su pestaña abierta.
+  document.body.classList.toggle('modo-etiquetas', bot === 't-etq');
+  if (bot === 't-etq') etAbrir(); else $('hoja-caja').hidden = true;
 }
 tabs.forEach(([bot]) => $(bot).onclick = () => abrir(bot));
 
@@ -562,19 +726,37 @@ function armarPantalla(rol){
 // pantalla lo dice y no muestra totales.
 const PAGINA = 1000;
 let filtroTipo = '';          // '' = todos
+let filtroOrigen = '';        // '' = todos
 let stockIncompleto = null;   // null = completo; si no, {cargados, total, error}
 let turnoStock = 0;
 let esperaStock;
 
 const textoBuscado = () => limpiarBusqueda($('buscar').value);
-const hayFiltro = () => !!(textoBuscado() || filtroTipo);
+const hayFiltro = () => !!(textoBuscado() || filtroTipo || filtroOrigen);
 
-function consultaStock(conteo){
+// Misma consulta para Stock y Etiquetas: texto, tipo y origen combinados.
+function consultaStockCon({ texto, tipo, origen }, conteo){
   let q = db.from('stock_detalle').select('*', conteo ? { count: 'exact' } : undefined);
-  const t = textoBuscado();
-  if (t) q = q.or(`codigo.ilike.*${t}*,descripcion.ilike.*${t}*`);
-  if (filtroTipo) q = q.eq('tipo', filtroTipo);
+  if (texto) q = q.or(`codigo.ilike.*${texto}*,descripcion.ilike.*${texto}*`);
+  if (tipo) q = q.eq('tipo', tipo);
+  if (origen) q = q.eq('origen', origen);
   return q.order('codigo');
+}
+const consultaStock = conteo =>
+  consultaStockCon({ texto: textoBuscado(), tipo: filtroTipo, origen: filtroOrigen }, conteo);
+
+// Grupo de botones de filtro: marca el elegido y avisa el valor.
+function grupoFiltro(id, atributo, alCambiar){
+  $(id).addEventListener('click', e => {
+    const b = e.target.closest(`[data-${atributo}]`);
+    if (!b) return;
+    $(id).querySelectorAll(`[data-${atributo}]`).forEach(x => x.setAttribute('aria-pressed', x === b));
+    alCambiar(b.dataset[atributo]);
+  });
+}
+function reiniciarGrupo(id, atributo){
+  $(id).querySelectorAll(`[data-${atributo}]`)
+    .forEach(x => x.setAttribute('aria-pressed', x.dataset[atributo] === ''));
 }
 
 // Trae todas las filas de una consulta, por páginas, hasta completar el
@@ -642,6 +824,7 @@ async function cargarStock(){
 function describirFiltro(){
   const partes = [];
   if (filtroTipo) partes.push(`tipo ${filtroTipo}`);
+  if (filtroOrigen) partes.push(`origen ${filtroOrigen}`);
   const t = $('buscar').value.trim();
   if (t) partes.push(`«${esc(t)}»`);
   return partes.join(' y ');
@@ -667,7 +850,7 @@ function pintar(){
     : filas.map(f => `
         <div class="fila">
           <div class="texto">
-            <div class="codigo">${esc(f.codigo)}${f.tipo ? `<span class="tipo">${esc(f.tipo)}</span>` : ''}</div>
+            <div class="codigo">${esc(f.codigo)}${f.tipo ? `<span class="tipo">${esc(f.tipo)}</span>` : ''}<button type="button" class="copiar" data-copiar="${esc(f.codigo)}" aria-label="Copiar el código ${esc(f.codigo)}">Copiar</button></div>
             <div class="desc">${esc(f.descripcion)}</div>
             ${f.etapa && f.etapa.trim() ? `<div class="etapa">Etapa: ${esc(f.etapa)}</div>` : ''}
           </div>
@@ -696,6 +879,8 @@ function celdaCSV(valor, formato = 'texto'){
     return `${d}/${m}/${a}`;
   }
   if (formato === 'sino') return valor ? 'Sí' : 'No';
+  if (formato === 'fechahora') return new Date(valor).toLocaleString('es-AR',
+    { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '');
   let t = formato === 'lista' ? (valor ?? []).join(', ') : String(valor);
   // Un texto que empieza con = + - @ Excel lo ejecuta como fórmula.
   if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
@@ -727,18 +912,266 @@ const COLUMNAS_STOCK = [
 ];
 $('exportar').onclick = () => {
   if (stockIncompleto || filas.length === 0) return;
-  descargarCSV(['stock', filtroTipo, $('buscar').value.trim()], COLUMNAS_STOCK, filas);
+  descargarCSV(['stock', filtroTipo, filtroOrigen, $('buscar').value.trim()], COLUMNAS_STOCK, filas);
 };
 
-$('filtro-tipo').onclick = e => {
-  const b = e.target.closest('[data-tipo]');
+grupoFiltro('filtro-tipo', 'tipo', v => { filtroTipo = v; clearTimeout(esperaStock); cargarStock(); });
+grupoFiltro('filtro-origen', 'origen', v => { filtroOrigen = v; clearTimeout(esperaStock); cargarStock(); });
+
+// ---------- copiar código ----------
+async function copiarTexto(texto){
+  try {
+    await navigator.clipboard.writeText(texto);
+    return true;
+  } catch {
+    // Respaldo para navegadores sin acceso al portapapeles.
+    const t = document.createElement('textarea');
+    t.value = texto; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    const ok = document.execCommand('copy');
+    t.remove();
+    return ok;
+  }
+}
+$('lista').addEventListener('click', async e => {
+  const b = e.target.closest('[data-copiar]');
   if (!b) return;
-  filtroTipo = b.dataset.tipo;
-  $('filtro-tipo').querySelectorAll('[data-tipo]')
-    .forEach(x => x.setAttribute('aria-pressed', x === b));
-  clearTimeout(esperaStock);
-  cargarStock();
+  const ok = await copiarTexto(b.dataset.copiar);
+  b.textContent = ok ? 'Copiado ✓' : 'No se pudo';
+  b.classList.toggle('ok', ok);
+  clearTimeout(b._t);
+  b._t = setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 1500);
+});
+
+// ---------- ETIQUETAS (admin) ----------
+// 1) se eligen productos con los mismos filtros de Stock (o a mano),
+// 2) se configura la grilla en mm, 3) se imprime por tandas con la
+// impresión del navegador. La selección se mantiene al cambiar filtros,
+// así se pueden juntar productos de varias búsquedas.
+const etFiltro = { tipo: '', origen: '' };
+let etFilas = [], etIncompleto = null, etTurno = 0, etEspera;
+const etSeleccion = new Map();   // codigo → fila de stock_detalle
+let etTanda = 0;
+
+// 21 por hoja A4 (3 × 7), una medida de etiqueta autoadhesiva común.
+const ET_DEFECTO = { cols: 3, ancho: 63.5, alto: 38.1, sep: 2.5, margen: 7, hojas: 1, bordes: true };
+const ET_CAMPOS = ['cols', 'ancho', 'alto', 'sep', 'margen', 'hojas'];
+function etLeerFormatoGuardado(){
+  try { return { ...ET_DEFECTO, ...JSON.parse(localStorage.getItem('etiquetas-formato') || '{}') }; }
+  catch { return { ...ET_DEFECTO }; }
+}
+function etGuardarFormato(f){ try { localStorage.setItem('etiquetas-formato', JSON.stringify(f)); } catch {} }
+(() => {
+  const f = etLeerFormatoGuardado();
+  ET_CAMPOS.forEach(k => $('et-' + k).value = f[k]);
+  $('et-bordes').checked = f.bordes;
+})();
+
+const etTexto = () => limpiarBusqueda($('et-buscar').value);
+const etHayFiltro = () => !!(etTexto() || etFiltro.tipo || etFiltro.origen);
+
+function etAbrir(){
+  if (!window.JsBarcode) {
+    avisar('et-aviso', 'No se pudo cargar la librería de códigos de barras (JsBarcode). Revisá la conexión y recargá la página.', false);
+  }
+  etPintarSeleccion();
+  etPintarHoja();
+}
+
+async function etBuscar(){
+  const n = ++etTurno;
+  etFilas = []; etIncompleto = null;
+  if (!etHayFiltro()) {
+    $('et-resumen').innerHTML = '';
+    $('et-todos').hidden = $('et-ninguno').hidden = true;
+    $('et-lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
+    return;
+  }
+  $('et-lista').innerHTML = '<p class="vacio">Buscando…</p>';
+  const res = await traerCompleto(c => consultaStockCon({ texto: etTexto(), ...etFiltro }, c));
+  if (n !== etTurno) return;
+  if (res.error && !res.filas) { $('et-lista').innerHTML = `<p class="vacio">${esc(res.error.message)}</p>`; return; }
+  etFilas = res.filas;
+  etIncompleto = resultadoIncompleto(res);
+  etPintarLista();
+}
+
+function etDescribirFiltro(){
+  const partes = [];
+  if (etFiltro.tipo) partes.push(`tipo ${etFiltro.tipo}`);
+  if (etFiltro.origen) partes.push(`origen ${etFiltro.origen}`);
+  const t = $('et-buscar').value.trim();
+  if (t) partes.push(`«${esc(t)}»`);
+  return partes.join(' y ');
+}
+
+function etPintarLista(){
+  const filtro = etDescribirFiltro();
+  $('et-resumen').innerHTML = etIncompleto
+    ? textoIncompleto(etIncompleto, filtro)
+    : `Con ${filtro}: <strong>${etFilas.length.toLocaleString('es-AR')}</strong> ${etFilas.length === 1 ? 'producto' : 'productos'}`;
+  // "Marcar todos" solo si la lista está completa: si no, marcaría una parte sin avisar.
+  $('et-todos').hidden = !!etIncompleto || etFilas.length === 0;
+  $('et-ninguno').hidden = etFilas.length === 0;
+  $('et-lista').innerHTML = etFilas.length === 0
+    ? '<p class="vacio">Sin resultados.</p>'
+    : etFilas.map(f => `
+        <label class="et-fila">
+          <input type="checkbox" data-codigo="${esc(f.codigo)}"${etSeleccion.has(f.codigo) ? ' checked' : ''}>
+          <span class="texto">${esc(f.codigo)} <span class="tipo">${esc(f.tipo ?? '')}</span><small>${esc(f.descripcion)}</small></span>
+        </label>`).join('');
+}
+
+function etCambioSeleccion(){
+  etTanda = 0;
+  etPintarSeleccion();
+  etPintarHoja();
+}
+function etPintarSeleccion(){
+  const n = etSeleccion.size;
+  $('et-sel').innerHTML = n
+    ? `Seleccionados para imprimir: <strong>${n.toLocaleString('es-AR')}</strong>`
+    : 'Todavía no hay productos seleccionados.';
+  $('et-vaciar').hidden = n === 0;
+}
+
+$('et-lista').addEventListener('change', e => {
+  const c = e.target.closest('[data-codigo]');
+  if (!c) return;
+  const f = etFilas.find(x => x.codigo === c.dataset.codigo);
+  if (c.checked && f) etSeleccion.set(f.codigo, f); else etSeleccion.delete(c.dataset.codigo);
+  etCambioSeleccion();
+});
+$('et-todos').onclick = () => { etFilas.forEach(f => etSeleccion.set(f.codigo, f)); etPintarLista(); etCambioSeleccion(); };
+$('et-ninguno').onclick = () => { etFilas.forEach(f => etSeleccion.delete(f.codigo)); etPintarLista(); etCambioSeleccion(); };
+$('et-vaciar').onclick = () => { etSeleccion.clear(); etPintarLista(); etCambioSeleccion(); };
+
+$('et-buscar').oninput = () => { clearTimeout(etEspera); etEspera = setTimeout(etBuscar, 300); };
+grupoFiltro('et-tipo', 'tipo', v => { etFiltro.tipo = v; clearTimeout(etEspera); etBuscar(); });
+grupoFiltro('et-origen', 'origen', v => { etFiltro.origen = v; clearTimeout(etEspera); etBuscar(); });
+
+// ----- formato y paginado -----
+const A4 = { ancho: 210, alto: 297 };
+const num = n => Number(n).toLocaleString('es-AR', { maximumFractionDigits: 1 });
+function etFormato(){
+  const f = Object.fromEntries(ET_CAMPOS.map(k => [k, Number($('et-' + k).value)]));
+  f.bordes = $('et-bordes').checked;
+  return f;
+}
+// Devuelve cuántas entran por hoja, o el motivo por el que no entran.
+function etValidar(f){
+  if (!Number.isInteger(f.cols) || f.cols < 1) return { error: '"Por fila" tiene que ser un entero, 1 o más.' };
+  if (!(f.ancho >= 10) || !(f.alto >= 10)) return { error: 'Ancho y alto tienen que ser de 10 mm o más.' };
+  if (!(f.sep >= 0) || !(f.margen >= 0)) return { error: 'Separación y margen no pueden ser negativos.' };
+  if (!Number.isInteger(f.hojas) || f.hojas < 1) return { error: '"Hojas por tanda" tiene que ser un entero, 1 o más.' };
+  const utilAncho = A4.ancho - 2 * f.margen, utilAlto = A4.alto - 2 * f.margen;
+  const ocupa = f.cols * f.ancho + (f.cols - 1) * f.sep;
+  if (ocupa > utilAncho + 0.01) {
+    const maxAncho = Math.floor(((utilAncho - (f.cols - 1) * f.sep) / f.cols) * 10) / 10;
+    return { error: `No entran ${f.cols} por fila de ${num(f.ancho)} mm: ocupan ${num(ocupa)} mm y la hoja deja ${num(utilAncho)} mm. ` +
+      (maxAncho >= 10 ? `Con ${f.cols} por fila el ancho máximo es ${num(maxAncho)} mm.` : 'Bajá la cantidad por fila o el margen.') };
+  }
+  const filasHoja = Math.floor((utilAlto + f.sep) / (f.alto + f.sep));
+  if (filasHoja < 1) return { error: `Una etiqueta de ${num(f.alto)} mm de alto no entra en la hoja con ese margen.` };
+  return { porHoja: f.cols * filasHoja, filasHoja };
+}
+
+ET_CAMPOS.concat('bordes').forEach(k => $('et-' + k).addEventListener('input', () => {
+  const f = etFormato();
+  if (!etValidar(f).error) etGuardarFormato(f);
+  etTanda = 0;
+  etPintarHoja();
+}));
+$('et-ajustar').onclick = () => {
+  const f = etFormato();
+  if (!Number.isInteger(f.cols) || f.cols < 1) return;
+  const util = A4.ancho - 2 * Math.max(0, f.margen) - (f.cols - 1) * Math.max(0, f.sep);
+  $('et-ancho').value = Math.floor((util / f.cols) * 10) / 10;
+  $('et-ancho').dispatchEvent(new Event('input'));
 };
+
+function etOrdenadas(){
+  return [...etSeleccion.values()].sort((a, b) => a.codigo.localeCompare(b.codigo));
+}
+
+function etPintarHoja(){
+  const f = etFormato();
+  const v = etValidar(f);
+  const todas = etOrdenadas();
+  $('et-formato-aviso').innerHTML = v.error ? `<div class="aviso mal">${esc(v.error)}</div>`
+    : `<p class="ayuda">Entran ${v.porHoja} por hoja (${f.cols} por fila × ${v.filasHoja} filas).</p>`;
+
+  const porTanda = v.error ? 0 : v.porHoja * f.hojas;
+  const nTandas = porTanda ? Math.ceil(todas.length / porTanda) : 0;
+  etTanda = Math.min(etTanda, Math.max(0, nTandas - 1));
+  $('et-ant').disabled = etTanda <= 0;
+  $('et-sig').disabled = etTanda >= nTandas - 1;
+  $('et-imprimir').disabled = !!v.error || todas.length === 0 || !window.JsBarcode;
+
+  if (v.error || todas.length === 0) {
+    $('et-tanda').textContent = todas.length === 0 ? 'Sin productos seleccionados' : '—';
+    $('et-imprimir').textContent = 'Imprimir';
+    $('hoja-caja').hidden = true;
+    $('hoja-caja').innerHTML = '';
+    return;
+  }
+
+  const desde = etTanda * porTanda;
+  const tanda = todas.slice(desde, desde + porTanda);
+  $('et-tanda').textContent = `Tanda ${num(etTanda + 1)} de ${num(nTandas)} · etiquetas ${num(desde + 1)}–${num(desde + tanda.length)} de ${num(todas.length)}`;
+  $('et-imprimir').textContent = nTandas > 1 ? `Imprimir tanda ${num(etTanda + 1)} de ${num(nTandas)}` : 'Imprimir';
+
+  const estiloPagina = `padding:${f.margen}mm;grid-template-columns:repeat(${f.cols},${f.ancho}mm);` +
+    `grid-auto-rows:${f.alto}mm;gap:${f.sep}mm;--alto:${f.alto}`;
+  const paginas = [];
+  for (let i = 0; i < tanda.length; i += v.porHoja) paginas.push(tanda.slice(i, i + v.porHoja));
+  $('hoja-caja').innerHTML = paginas.map(pag => `
+    <div class="pagina${f.bordes ? ' bordes' : ''}" style="${estiloPagina}">
+      ${pag.map(p => `
+        <div class="etq" data-codigo="${esc(p.codigo)}">
+          <div class="etq-cod">${esc(p.codigo)}</div>
+          <div class="etq-barras"></div>
+          <div class="etq-desc">${esc(p.descripcion ?? '')}</div>
+        </div>`).join('')}
+    </div>`).join('');
+  $('hoja-caja').hidden = false;
+  etDibujarBarras(f);
+}
+
+// Code 128 en SVG. Se estira solo a lo ancho: las barras mantienen sus
+// proporciones, que es lo que importa para leerlas. Margen de 10 módulos
+// a cada lado (zona de silencio que piden los lectores).
+const ET_MODULO_MIN_MM = 0.19;   // por debajo, a un celular le cuesta leerlo
+function etDibujarBarras(f){
+  let finas = 0, invalidas = 0;
+  $('hoja-caja').querySelectorAll('.etq').forEach(etq => {
+    const caja = etq.querySelector('.etq-barras');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    try {
+      window.JsBarcode(svg, etq.dataset.codigo, {
+        format: 'CODE128', displayValue: false, width: 2, height: 100,
+        margin: 0, marginLeft: 20, marginRight: 20, background: 'transparent',
+      });
+    } catch {
+      invalidas++;
+      caja.outerHTML = '<div class="etq-error">Este código tiene caracteres que Code 128 no admite (por ejemplo Ñ o tildes).</div>';
+      return;
+    }
+    svg.removeAttribute('width'); svg.removeAttribute('height');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    caja.appendChild(svg);
+    const modulos = Number(svg.getAttribute('viewBox').split(' ')[2]) / 2;
+    if ((f.ancho - 3) / modulos < ET_MODULO_MIN_MM) { finas++; etq.classList.add('fina'); }
+  });
+  const avisos = [];
+  if (invalidas) avisos.push(`${invalidas} ${invalidas === 1 ? 'código no se puede' : 'códigos no se pueden'} pasar a Code 128.`);
+  if (finas) avisos.push(`En ${finas} ${finas === 1 ? 'etiqueta' : 'etiquetas'} (marcadas en rojo en la vista previa) las barras quedan muy finas para leerlas bien: agrandá el ancho o poné menos por fila.`);
+  $('et-aviso').innerHTML = avisos.length ? `<div class="aviso mal">${avisos.join('\n')}</div>` : '';
+}
+
+$('et-ant').onclick = () => { etTanda--; etPintarHoja(); };
+$('et-sig').onclick = () => { etTanda++; etPintarHoja(); };
+$('et-imprimir').onclick = () => { if (!$('et-imprimir').disabled) window.print(); };
 
 // ---------- motivos (tabla motivos: el signo lo define la base) ----------
 let motivos = [];
@@ -1220,6 +1653,7 @@ async function abrirFicha(codigo){
   $('e-familia-caja').hidden = !tieneX(f.codigo);
   $('e-comp-req').hidden = !exigeComposicion(f);
   compEdit.poner(comp);
+  cargarMovsFicha(codigo);
 }
 // Misma regla que la función exige_composicion de la base.
 const exigeComposicion = f => f.tipo === 'SE' || (f.tipo === 'COR' && /^F[0-9]/.test(f.codigo));
@@ -1531,6 +1965,119 @@ function plNoExiste(codigo){
   };
 }
 
+// "No sé qué es esto": llegó algo sin código (o con uno ilegible) y
+// nadie sabe qué es. Deja un pedido de alta tipo sin_codigo, con una
+// foto opcional que va a Storage (bucket pedidos-alta, carpeta propia).
+let plFoto = null;   // Blob ya achicado
+function plNoSe(){
+  pl = { sinCodigo: true };
+  plFoto = null;
+  plPaso(`
+    <p class="pl-pregunta">¿Qué recibiste?</p>
+    <form id="pl-nose-form" autocomplete="off">
+      <label class="pl-label" for="pl-nose-desc">Qué es, como lo describirías <span class="req">*</span></label>
+      <textarea id="pl-nose-desc" class="pl-texto" rows="2" maxlength="200"
+                placeholder="Ej.: caja con tapas redondas sin etiqueta"></textarea>
+      <label class="pl-label" for="pl-nose-de">De dónde vino, si sabés</label>
+      <input id="pl-nose-de" class="pl-texto" maxlength="200" placeholder="Ej.: proveedor, otra planta">
+      <label class="pl-label" for="pl-nose-donde">Dónde lo dejaste <span class="req">*</span></label>
+      <input id="pl-nose-donde" class="pl-texto" maxlength="200" placeholder="Ej.: estante PA, al lado de la balanza">
+      <input id="pl-nose-foto" type="file" accept="image/*" capture="environment" hidden>
+      <div id="pl-nose-prev"></div>
+      <button type="button" class="pl-btn chico" id="pl-nose-sacar">Sacar foto (opcional)</button>
+      <button class="pl-btn ok" id="pl-nose-enviar">Avisar a administración</button>
+    </form>
+    <div id="pl-nose-aviso"></div>
+    <button type="button" class="pl-btn chico" data-accion="cancelar">Cancelar</button>
+    <p class="nota-req"><span class="req">*</span> Campo obligatorio</p>`);
+  $('pl-nose-desc').focus();
+
+  const mostrarFoto = () => {
+    $('pl-nose-sacar').textContent = plFoto ? 'Sacar otra foto' : 'Sacar foto (opcional)';
+    $('pl-nose-prev').innerHTML = plFoto
+      ? `<div class="pl-foto-prev"><img alt="Foto que se va a enviar" src="${URL.createObjectURL(plFoto)}">
+           <button type="button" class="pl-btn chico" id="pl-nose-quitar" style="margin:0;flex:1">Quitar foto</button></div>`
+      : '';
+    if (plFoto) $('pl-nose-quitar').onclick = () => { plFoto = null; mostrarFoto(); };
+  };
+  $('pl-nose-sacar').onclick = () => $('pl-nose-foto').click();
+  $('pl-nose-foto').onchange = async e => {
+    const archivo = e.target.files?.[0];
+    e.target.value = '';
+    if (!archivo) return;
+    $('pl-nose-aviso').innerHTML = '<div class="pl-msj info">Preparando la foto…</div>';
+    try { plFoto = await plAchicarFoto(archivo); $('pl-nose-aviso').innerHTML = ''; }
+    catch { plFoto = null; $('pl-nose-aviso').innerHTML = '<div class="pl-msj mal">No se pudo leer la foto. Probá sacarla de nuevo o enviá sin foto.</div>'; }
+    mostrarFoto();
+  };
+
+  $('pl-nose-form').onsubmit = async e => {
+    e.preventDefault();
+    const desc = $('pl-nose-desc').value.trim();
+    const de = $('pl-nose-de').value.trim();
+    const donde = $('pl-nose-donde').value.trim();
+    const falta = !desc ? 'Escribí qué es, aunque sea aproximado.'
+                : !donde ? 'Escribí dónde lo dejaste, para que lo puedan encontrar.' : '';
+    if (falta) { $('pl-nose-aviso').innerHTML = `<div class="pl-msj mal">${falta}</div>`; return; }
+
+    const b = $('pl-nose-enviar');
+    if (b.disabled) return;
+    b.disabled = true;
+    $('pl-nose-aviso').innerHTML = '<div class="pl-msj info">Enviando…</div>';
+
+    let foto = null;
+    if (plFoto) {
+      // Carpeta propia: la policy del bucket solo deja subir ahí.
+      const ruta = `${usuarioActual}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+      const { error } = await db.storage.from('pedidos-alta')
+        .upload(ruta, plFoto, { contentType: 'image/jpeg', upsert: false });
+      if (error) {
+        b.disabled = false;
+        $('pl-nose-aviso').innerHTML = `<div class="pl-msj mal">No se pudo subir la foto:\n${esc(error.message)}\nPodés quitarla y enviar sin foto.</div>`;
+        return;
+      }
+      foto = ruta;
+    }
+    // Fecha y usuario los pone la base.
+    const { error } = await db.from('pedidos_alta').insert({
+      tipo: 'sin_codigo', descripcion: desc, procedencia: de || null, ubicacion: donde, foto,
+    });
+    if (error) {
+      b.disabled = false;
+      $('pl-nose-aviso').innerHTML = `<div class="pl-msj mal">La base lo rechazó:\n${esc(error.message)}</div>`;
+      return;
+    }
+    plFoto = null;
+    plInicio({ msj: '<div class="pl-msj ok">✓ Aviso enviado a administración.<br>Lo ven en Pendientes con lo que escribiste' +
+      (foto ? ' y la foto' : '') + '.</div>' });
+    if (permitidas.includes('t-pend')) contarPendientes();
+  };
+}
+$('pl-nose').onclick = plNoSe;
+
+// La foto del celular pesa varios MB: se achica a 1600 px de lado y JPEG
+// antes de subirla. Más rápido con datos móviles y entra en el límite del bucket.
+async function plAchicarFoto(archivo){
+  const MAX = 1600;
+  let img;
+  try { img = await createImageBitmap(archivo, { imageOrientation: 'from-image' }); }
+  catch {
+    img = await new Promise((ok, mal) => {
+      const i = new Image();
+      i.onload = () => ok(i); i.onerror = mal;
+      i.src = URL.createObjectURL(archivo);
+    });
+  }
+  const ancho = img.width, alto = img.height;
+  const k = Math.min(1, MAX / Math.max(ancho, alto));
+  const c = document.createElement('canvas');
+  c.width = Math.round(ancho * k); c.height = Math.round(alto * k);
+  c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+  const blob = await new Promise(ok => c.toBlob(ok, 'image/jpeg', 0.82));
+  if (!blob) throw new Error('sin imagen');
+  return blob;
+}
+
 function plError(texto){
   plInicio({ msj: `<div class="pl-msj mal">${esc(texto)}</div>` });
 }
@@ -1633,7 +2180,7 @@ async function contarPendientes(){
 async function cargarPendientes(){
   $('pend-resumen').textContent = '';
   const { data, error } = await db.from('pedidos_alta')
-    .select('id, codigo, descripcion, pedido_en, perfiles:pedido_por(nombre)')
+    .select('id, tipo, codigo, descripcion, procedencia, ubicacion, foto, pedido_en, perfiles:pedido_por(nombre)')
     .eq('resuelto', false).order('pedido_en');
   if (error) { $('pend-lista').innerHTML = `<p class="vacio">${esc(error.message)}</p>`; return; }
   const n = $('pend-n');
@@ -1643,17 +2190,42 @@ async function cargarPendientes(){
     ? `<strong>${data.length}</strong> ${data.length === 1 ? 'pedido' : 'pedidos'} de alta sin resolver`
     : '';
   const fecha = t => new Date(t).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
-  $('pend-lista').innerHTML = data.length === 0
-    ? '<p class="vacio">No hay pedidos de alta pendientes.</p>'
-    : data.map(p => `
-      <div class="pend">
+
+  // Fotos: el bucket es privado, se ven con un link firmado de una hora.
+  const conFoto = data.filter(p => p.foto);
+  const urls = {};
+  if (conFoto.length) {
+    const { data: firmadas } = await db.storage.from('pedidos-alta')
+      .createSignedUrls(conFoto.map(p => p.foto), 3600);
+    (firmadas ?? []).forEach(f => { if (f.signedUrl) urls[f.path] = f.signedUrl; });
+  }
+
+  const tarjeta = p => {
+    const sin = p.tipo === 'sin_codigo';
+    return `
+      <div class="pend${sin ? ' sin' : ''}">
         <div class="texto">
-          <div class="codigo">${esc(p.codigo)}</div>
+          <span class="pend-tipo ${sin ? 'sin' : 'esc'}">${sin ? 'Sin código' : 'Código escaneado'}</span>
+          ${sin ? '' : `<div class="codigo">${esc(p.codigo)}</div>`}
           <div>${esc(p.descripcion)}</div>
+          ${p.procedencia ? `<div class="dato"><b>De dónde vino:</b> ${esc(p.procedencia)}</div>` : ''}
+          ${p.ubicacion ? `<div class="dato"><b>Dónde quedó:</b> ${esc(p.ubicacion)}</div>` : ''}
+          ${p.foto ? (urls[p.foto]
+              ? `<a class="pend-foto" href="${esc(urls[p.foto])}" target="_blank" rel="noopener"><img src="${esc(urls[p.foto])}" alt="Foto del pedido"></a>`
+              : '<div class="dato">(No se pudo cargar la foto)</div>') : ''}
           <small>${fecha(p.pedido_en)} · ${esc(p.perfiles?.nombre ?? '—')}</small>
         </div>
         <button type="button" class="boton2" data-resolver="${p.id}">Resuelto</button>
-      </div>`).join('');
+      </div>`;
+  };
+  // Dos grupos: son dos problemas distintos. Sin código primero: hay
+  // algo físico en planta que nadie sabe qué es.
+  const sinCodigo = data.filter(p => p.tipo === 'sin_codigo');
+  const escaneados = data.filter(p => p.tipo !== 'sin_codigo');
+  $('pend-lista').innerHTML = data.length === 0
+    ? '<p class="vacio">No hay pedidos de alta pendientes.</p>'
+    : (sinCodigo.length ? `<p class="pend-grupo">Llegó algo y no saben qué es (${sinCodigo.length})</p>` + sinCodigo.map(tarjeta).join('') : '') +
+      (escaneados.length ? `<p class="pend-grupo">Códigos escaneados que no están en el catálogo (${escaneados.length})</p>` + escaneados.map(tarjeta).join('') : '');
 }
 
 $('pend-lista').addEventListener('click', async e => {
@@ -1670,6 +2242,208 @@ $('pend-lista').addEventListener('click', async e => {
   }
   cargarPendientes();
 });
+
+// ============================================================
+//  MOVIMIENTOS REGISTRADOS (admin y gerencia)
+// ============================================================
+// Lee la vista movimientos_detalle (ver sql/movimientos_registrados.sql).
+// El libro crece sin límite: se trae de a LB_PAGINA y "Cargar más" pide
+// las filas siguientes a la última vista (fecha, id), no por número de
+// página, así no se repiten ni se saltean si entran movimientos nuevos.
+const LB_PAGINA = 100;
+let lbFilas = [], lbTotal = null, lbTurno = 0, lbEspera, lbListo = false;
+let lbExacto = null;   // código exacto cuando se llega desde la ficha de un producto
+const nombreMotivo = c => c ? c.charAt(0) + c.slice(1).toLowerCase().replaceAll('_', ' ') : '—';
+const fechaCorta = f => { if (!f) return '—'; const [a, m, d] = String(f).slice(0, 10).split('-'); return `${d}/${m}/${a}`; };
+const fechaHora = t => t ? new Date(t).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+
+function lbConsulta(conteo, despuesDe = null){
+  let q = db.from('movimientos_detalle').select('*', conteo ? { count: 'exact' } : undefined);
+  const desde = $('lb-desde').value, hasta = $('lb-hasta').value;
+  if (desde) q = q.gte('fecha', desde);
+  if (hasta) q = q.lte('fecha', hasta);
+  // Las condiciones "o" (texto y "a partir de la última fila") van en
+  // una sola expresión, unidas con "y", en vez de dos parámetros sueltos.
+  const oes = [];
+  if (lbExacto) q = q.eq('producto', lbExacto);
+  else {
+    const t = limpiarBusqueda($('lb-prod').value);
+    if (t) oes.push(`producto.ilike.*${t}*,descripcion.ilike.*${t}*`);
+  }
+  if ($('lb-motivo').value)  q = q.eq('motivo', $('lb-motivo').value);
+  if ($('lb-usuario').value) q = q.eq('usuario', $('lb-usuario').value);
+  if (despuesDe) oes.push(`fecha.lt.${despuesDe.fecha},and(fecha.eq.${despuesDe.fecha},id.lt.${despuesDe.id})`);
+  if (oes.length === 1) q = q.or(oes[0]);
+  if (oes.length === 2) q = q.or(`and(or(${oes[0]}),or(${oes[1]}))`);
+  return q.order('fecha', { ascending: false }).order('id', { ascending: false });
+}
+
+const lbHayFiltro = () => !!($('lb-desde').value || $('lb-hasta').value || lbExacto ||
+  limpiarBusqueda($('lb-prod').value) || $('lb-motivo').value || $('lb-usuario').value);
+
+function lbDescribirFiltro(){
+  const p = [];
+  const d = $('lb-desde').value, h = $('lb-hasta').value;
+  if (d && h) p.push(`del ${fechaCorta(d)} al ${fechaCorta(h)}`);
+  else if (d) p.push(`desde el ${fechaCorta(d)}`);
+  else if (h) p.push(`hasta el ${fechaCorta(h)}`);
+  if (lbExacto) p.push(`producto ${esc(lbExacto)}`);
+  else if ($('lb-prod').value.trim()) p.push(`«${esc($('lb-prod').value.trim())}»`);
+  if ($('lb-motivo').value) p.push(`motivo ${esc(nombreMotivo($('lb-motivo').value))}`);
+  if ($('lb-usuario').value) p.push(`cargados por ${esc($('lb-usuario').selectedOptions[0]?.textContent ?? '')}`);
+  return p.join(', ');
+}
+
+async function lbAbrir(){
+  if (!lbListo) {
+    lbListo = true;
+    // Opciones de los filtros. Si alguna falla, el filtro queda en "Todos".
+    const [mot, usr] = await Promise.all([
+      db.from('motivos').select('codigo').order('codigo'),
+      db.rpc('usuarios_del_libro'),
+    ]);
+    if (!mot.error) $('lb-motivo').innerHTML = '<option value="">Todos</option>' +
+      mot.data.map(m => `<option value="${esc(m.codigo)}">${esc(nombreMotivo(m.codigo))}</option>`).join('');
+    if (!usr.error) $('lb-usuario').innerHTML = '<option value="">Todos</option>' +
+      usr.data.map(u => `<option value="${esc(u.id)}">${esc(u.nombre ?? '(sin nombre)')}</option>`).join('');
+  }
+  lbCargar(true);
+}
+
+async function lbCargar(desdeCero){
+  const n = ++lbTurno;
+  const d = $('lb-desde').value, h = $('lb-hasta').value;
+  $('lb-aviso').innerHTML = '';
+  if (d && h && d > h) {
+    $('lb-resumen').innerHTML = ''; $('lb-lista').innerHTML = '';
+    $('lb-mas').hidden = $('lb-exportar').hidden = true;
+    avisar('lb-aviso', '"Desde" es posterior a "Hasta".', false);
+    return;
+  }
+  if (desdeCero) { lbFilas = []; lbTotal = null; $('lb-lista').innerHTML = '<p class="vacio">Cargando…</p>'; }
+  const ultima = desdeCero ? null : lbFilas[lbFilas.length - 1];
+  $('lb-mas').disabled = true;
+  const { data, error, count } = await lbConsulta(desdeCero, ultima).limit(LB_PAGINA);
+  if (n !== lbTurno) return;
+  $('lb-mas').disabled = false;
+  if (error) { if (desdeCero) $('lb-lista').innerHTML = ''; avisar('lb-aviso', 'No se pudo leer el libro:\n' + error.message, false); return; }
+  if (desdeCero) lbTotal = count;
+  const vistos = new Set(lbFilas.map(f => f.id));
+  lbFilas.push(...data.filter(f => !vistos.has(f.id)));
+  lbPintar(data.length < LB_PAGINA);
+}
+
+function filaMovimiento(f, conProducto = true){
+  const c = Number(f.cantidad);
+  return `
+    <div class="lb-fila">
+      <div class="texto">
+        <div class="lb-fecha">${fechaCorta(f.fecha)}</div>
+        ${conProducto ? `<div class="lb-prod">${esc(f.producto)}<small>${esc(f.descripcion ?? '')}</small></div>` : ''}
+        <div class="lb-meta">${esc(nombreMotivo(f.motivo))} · ${esc(f.usuario_nombre ?? '—')} · registrado ${fechaHora(f.registrado)}</div>
+        ${f.nota ? `<div class="lb-nota">${esc(f.nota)}</div>` : ''}
+      </div>
+      <div class="lb-cant ${c > 0 ? 'entra' : 'sale'}">${c > 0 ? '+' : ''}${c.toLocaleString('es-AR')}</div>
+    </div>`;
+}
+
+function lbPintar(seTermino){
+  const fmt = n => n.toLocaleString('es-AR');
+  const filtro = lbDescribirFiltro();
+  // "Del 05/10/2026 al 12/10/2026, motivo Chatarra: 40 movimientos"
+  $('lb-resumen').innerHTML = (filtro ? filtro.charAt(0).toUpperCase() + filtro.slice(1) + ': ' : 'Todo el libro: ') +
+    (lbTotal !== null
+      ? `<strong>${fmt(lbTotal)}</strong> ${lbTotal === 1 ? 'movimiento' : 'movimientos'}` +
+        (lbFilas.length < lbTotal ? ` · se ven los ${fmt(lbFilas.length)} más recientes` : '')
+      : `se ven ${fmt(lbFilas.length)}`);
+  $('lb-lista').innerHTML = lbFilas.length ? lbFilas.map(f => filaMovimiento(f)).join('')
+    : '<p class="vacio">No hay movimientos con esos filtros.</p>';
+  const hayMas = lbTotal !== null ? lbFilas.length < lbTotal : !seTermino;
+  $('lb-mas').hidden = !hayMas;
+  $('lb-mas').textContent = `Cargar ${LB_PAGINA} más`;
+  $('lb-exportar').hidden = lbFilas.length === 0;
+  $('lb-limpiar').hidden = !lbHayFiltro();
+}
+
+function lbPintarExacto(){
+  $('lb-exacto').innerHTML = lbExacto
+    ? `<span class="lb-exacto">Solo el producto <strong>${esc(lbExacto)}</strong>
+         <button type="button" class="boton2" id="lb-exacto-quitar">Quitar</button></span>` : '';
+  if (lbExacto) $('lb-exacto-quitar').onclick = () => { lbExacto = null; $('lb-prod').value = ''; lbPintarExacto(); lbCargar(true); };
+}
+
+['lb-desde', 'lb-hasta', 'lb-motivo', 'lb-usuario'].forEach(id => $(id).addEventListener('change', () => lbCargar(true)));
+$('lb-prod').addEventListener('input', () => {
+  if (lbExacto) { lbExacto = null; lbPintarExacto(); }
+  clearTimeout(lbEspera);
+  lbEspera = setTimeout(() => lbCargar(true), 300);
+});
+$('lb-mas').onclick = () => lbCargar(false);
+$('lb-limpiar').onclick = () => {
+  ['lb-desde', 'lb-hasta', 'lb-prod', 'lb-motivo', 'lb-usuario'].forEach(id => $(id).value = '');
+  lbExacto = null; lbPintarExacto();
+  lbCargar(true);
+};
+
+// Exporta TODO lo que coincide con los filtros (no solo lo cargado en
+// pantalla), de a 1000 filas, siguiendo el mismo orden.
+const COLUMNAS_LIBRO = [
+  ['Fecha', 'fecha', 'fecha'], ['Código', 'producto'], ['Descripción', 'descripcion'],
+  ['Cantidad', 'cantidad', 'numero'], ['Motivo', 'motivo'], ['Usuario', 'usuario_nombre'],
+  ['Registrado', 'registrado', 'fechahora'], ['Nota', 'nota'],
+];
+$('lb-exportar').onclick = async () => {
+  const b = $('lb-exportar');
+  if (b.disabled) return;
+  b.disabled = true;
+  const todas = [];
+  let total = null, ultima = null, error = null;
+  while (true) {
+    const res = await lbConsulta(total === null, ultima).limit(PAGINA);
+    if (res.error) { error = res.error; break; }
+    if (total === null) total = res.count;
+    todas.push(...res.data);
+    $('lb-aviso').innerHTML = `<div class="aviso ok">Preparando el CSV: ${todas.length.toLocaleString('es-AR')}` +
+      (total !== null ? ` de ${total.toLocaleString('es-AR')}` : '') + '…</div>';
+    if (res.data.length < PAGINA) break;
+    ultima = res.data[res.data.length - 1];
+  }
+  b.disabled = false;
+  if (error || (total !== null && todas.length < total)) {
+    avisar('lb-aviso', `No se pudo traer todo lo que coincide (llegaron ${todas.length.toLocaleString('es-AR')}` +
+      (total !== null ? ` de ${total.toLocaleString('es-AR')}` : '') + '). No se descargó nada para no exportar un archivo incompleto.' +
+      (error ? '\n' + error.message : ''), false);
+    return;
+  }
+  $('lb-aviso').innerHTML = '';
+  descargarCSV(['movimientos', $('lb-desde').value, $('lb-hasta').value, lbExacto ?? $('lb-prod').value.trim(),
+    $('lb-motivo').value, $('lb-usuario').value ? ($('lb-usuario').selectedOptions[0]?.textContent ?? '') : ''],
+    COLUMNAS_LIBRO, todas);
+};
+
+// ---------- ficha de Editar producto: su historia ----------
+const MOVS_FICHA = 10;
+async function cargarMovsFicha(codigo){
+  $('e-movs').innerHTML = '<p class="comp-vacia">Cargando…</p>';
+  $('e-movs-todos').hidden = true;
+  const { data, error, count } = await db.from('movimientos_detalle')
+    .select('*', { count: 'exact' }).eq('producto', codigo)
+    .order('fecha', { ascending: false }).order('id', { ascending: false }).limit(MOVS_FICHA);
+  if (enFicha?.codigo !== codigo) return;   // se abrió otra ficha mientras tanto
+  if (error) { $('e-movs').innerHTML = `<p class="comp-vacia">No se pudieron leer los movimientos: ${esc(error.message)}</p>`; return; }
+  $('e-movs').innerHTML = data.length
+    ? data.map(f => filaMovimiento(f, false)).join('') +
+      (count > data.length ? `<p class="ayuda">Se ven los ${data.length} más recientes de ${count.toLocaleString('es-AR')}.</p>` : '')
+    : '<p class="comp-vacia">Este producto no tiene movimientos.</p>';
+  $('e-movs-todos').hidden = !data.length || !permitidas.includes('t-libro');
+}
+$('e-movs-todos').onclick = () => {
+  ['lb-desde', 'lb-hasta', 'lb-motivo', 'lb-usuario'].forEach(id => $(id).value = '');
+  lbExacto = enFicha.codigo;
+  $('lb-prod').value = enFicha.codigo;
+  lbPintarExacto();
+  abrir('t-libro');
+};
 
 // ---------- USUARIOS (admin) ----------
 // La lista viene de listar_usuarios() (lee auth.users del lado de la
@@ -1776,10 +2550,20 @@ function mostrarLogin(){
   $('p-login').hidden = false;
   permitidas = [];
   filas = [];
-  filtroTipo = '';
+  filtroTipo = ''; filtroOrigen = '';
   $('buscar').value = '';
-  $('filtro-tipo').querySelectorAll('[data-tipo]')
-    .forEach(x => x.setAttribute('aria-pressed', x.dataset.tipo === ''));
+  reiniciarGrupo('filtro-tipo', 'tipo');
+  reiniciarGrupo('filtro-origen', 'origen');
+  // Etiquetas
+  document.body.classList.remove('modo-etiquetas');
+  etSeleccion.clear(); etFilas = []; etTanda = 0;
+  etFiltro.tipo = ''; etFiltro.origen = '';
+  $('et-buscar').value = '';
+  reiniciarGrupo('et-tipo', 'tipo');
+  reiniciarGrupo('et-origen', 'origen');
+  $('et-lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
+  $('et-resumen').innerHTML = '';
+  $('hoja-caja').hidden = true; $('hoja-caja').innerHTML = '';
   $('resumen').innerHTML = '';
   $('lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
   $('exportar').hidden = true;
@@ -1802,6 +2586,13 @@ function mostrarLogin(){
   prodEdit = []; editIncompleto = null;
   usuarios = [];
   $('u-lista').innerHTML = '';
+  // Movimientos registrados
+  lbFilas = []; lbTotal = null; lbListo = false; lbExacto = null;
+  ['lb-desde', 'lb-hasta', 'lb-prod'].forEach(id => $(id).value = '');
+  $('lb-motivo').innerHTML = $('lb-usuario').innerHTML = '<option value="">Todos</option>';
+  $('lb-lista').innerHTML = ''; $('lb-resumen').innerHTML = ''; $('lb-exacto').innerHTML = ''; $('lb-aviso').innerHTML = '';
+  $('lb-mas').hidden = $('lb-exportar').hidden = $('lb-limpiar').hidden = true;
+  plFoto = null;
   $('u-aviso').innerHTML = '';
 }
 
@@ -1827,7 +2618,8 @@ async function entrarCon(user){
   }
   $('s-rol').textContent = NOMBRE_ROL[perfil.rol];
   armarPantalla(perfil.rol);
-  if (permitidas.includes('t-mov')) cargarMotivos();
+  // Los motivos los usan Movimiento y Planta (planta ya no tiene Movimiento).
+  if (permitidas.includes('t-mov') || permitidas.includes('t-planta')) cargarMotivos();
   if (permitidas.includes('t-pend')) contarPendientes();
 }
 
