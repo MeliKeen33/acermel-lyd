@@ -69,9 +69,13 @@
   .fila .cant{font-size:1.5rem;font-weight:600;letter-spacing:-.02em}
   .fila .cant.negativo{color:var(--alarma)}
   .fila .donde{color:var(--gris);font-size:.75rem;min-width:2rem;text-align:right}
-  .fila .tipo{display:inline-block;margin-left:.4rem;padding:0 .3rem;border:1px solid var(--linea);
+  .fila .tipo,.et-fila .tipo{display:inline-block;margin-left:.4rem;padding:0 .3rem;border:1px solid var(--linea);
     border-radius:2px;color:var(--gris);font-size:.7rem;font-weight:500;vertical-align:1px}
   /* etapa es texto libre y puede ser largo: corta en varias líneas, nunca ensancha la fila */
+  .copiar{margin-left:.4rem;padding:.15rem .45rem;border:1px solid var(--linea);background:var(--campo);
+    color:var(--gris);border-radius:3px;font:inherit;font-size:.7rem;cursor:pointer;vertical-align:1px}
+  .copiar:focus-visible{outline:2px solid var(--accion);outline-offset:2px}
+  .copiar.ok{color:var(--accion);border-color:var(--accion)}
   .fila .etapa{color:var(--gris);font-size:.75rem;margin-top:.15rem;
     white-space:normal;overflow-wrap:anywhere}
   .filtros{display:flex;gap:.35rem;margin-top:.5rem}
@@ -226,6 +230,41 @@
   .rol-chip.sin{border-color:var(--alarma);color:var(--alarma);font-weight:600}
   .barra-stock .resumen{flex:1;min-width:0}
   .barra-stock .boton2{margin-top:.5rem}
+  /* ---------- Etiquetas ---------- */
+  .paso{font-size:.95rem;font-weight:600;margin:1.5rem 0 .2rem}
+  .paso:first-child{margin-top:0}
+  .et-fila{display:flex;align-items:center;gap:.6rem;margin:0;padding:.55rem 0;border-bottom:1px solid var(--linea);color:var(--tinta);font-size:.9rem;cursor:pointer}
+  .et-fila input{width:auto;margin:0}
+  .et-fila .texto{flex:1;min-width:0;font-size:.9rem}
+  .et-fila .texto small{display:block;color:var(--gris);font-size:.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .formato{display:grid;grid-template-columns:repeat(auto-fill,minmax(8.5rem,1fr));gap:0 .6rem}
+  .tandas{display:flex;align-items:center;gap:.5rem;margin-top:.8rem}
+  .tandas span{flex:1;text-align:center;font-size:.9rem}
+
+  /* La hoja: medidas reales en mm. En pantalla se ve como papel. */
+  #hoja-caja{overflow-x:auto;padding:0 1rem 3rem}
+  .pagina{width:210mm;height:297mm;margin:0 auto 1rem;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.18);
+    display:grid;align-content:start;justify-content:start;overflow:hidden;color:#000}
+  .etq{display:flex;flex-direction:column;min-width:0;min-height:0;padding:1.5mm;overflow:hidden;
+    font-family:Arial,Helvetica,sans-serif}
+  .pagina.bordes .etq{outline:.2mm dashed #999;outline-offset:-.1mm}
+  .etq-cod{font-weight:700;font-size:calc(var(--alto) * .13mm);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .etq-barras{flex:1;min-height:0;width:100%;margin:.6mm 0}
+  .etq-barras svg{display:block;width:100%;height:100%}
+  .etq-desc{font-size:calc(var(--alto) * .095mm);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .etq-error{flex:1;display:flex;align-items:center;font-size:2.6mm;color:#a5281f}
+  .etq.fina{outline:.4mm solid #a5281f}
+
+  @media print{
+    @page{size:A4;margin:0}
+    /* Solo con la pestaña Etiquetas abierta: se imprime la hoja y nada más. */
+    body.modo-etiquetas{background:#fff}
+    body.modo-etiquetas > *:not(#hoja-caja){display:none !important}
+    body.modo-etiquetas #hoja-caja{display:block !important;overflow:visible;padding:0}
+    body.modo-etiquetas .pagina{margin:0;box-shadow:none;break-after:page}
+    body.modo-etiquetas .pagina:last-child{break-after:auto}
+    body.modo-etiquetas .etq.fina{outline:none}
+  }
 </style>
 </head>
 <body>
@@ -266,6 +305,7 @@
     <button id="t-mov"   aria-selected="false">Movimiento</button>
     <button id="t-prod"  aria-selected="false">Producto nuevo</button>
     <button id="t-edit"  aria-selected="false">Editar producto</button>
+    <button id="t-etq"   aria-selected="false">Etiquetas</button>
     <button id="t-pend"  aria-selected="false">Pendientes<span class="contador" id="pend-n" hidden></span></button>
     <button id="t-usr"   aria-selected="false">Usuarios</button>
   </nav>
@@ -279,6 +319,12 @@
       <button type="button" data-tipo="SE"  aria-pressed="false" title="Semielaborados">SE</button>
       <button type="button" data-tipo="ACC" aria-pressed="false" title="Accesorios">ACC</button>
       <button type="button" data-tipo="MP"  aria-pressed="false" title="Materias primas">MP</button>
+    </div>
+    <div class="filtros" id="filtro-origen" role="group" aria-label="Filtrar por origen">
+      <button type="button" data-origen="" aria-pressed="true">Todos</button>
+      <button type="button" data-origen="fabricado" aria-pressed="false">Fabricado</button>
+      <button type="button" data-origen="comprado"  aria-pressed="false">Comprado</button>
+      <button type="button" data-origen="importado" aria-pressed="false">Importado</button>
     </div>
     <div class="barra-stock">
       <p id="resumen" class="resumen" aria-live="polite"></p>
@@ -480,6 +526,59 @@
   </section>
 
   <!-- ====== USUARIOS (admin) ====== -->
+  <!-- ====== ETIQUETAS (admin) ====== -->
+  <section id="p-etq" hidden>
+    <h2 class="paso">1. Elegí los productos</h2>
+    <input id="et-buscar" placeholder="Buscar por código o descripción" autocomplete="off">
+    <div class="filtros" id="et-tipo" role="group" aria-label="Filtrar por tipo">
+      <button type="button" data-tipo="" aria-pressed="true">Todos</button>
+      <button type="button" data-tipo="COR" aria-pressed="false" title="Cortes">COR</button>
+      <button type="button" data-tipo="SE"  aria-pressed="false" title="Semielaborados">SE</button>
+      <button type="button" data-tipo="ACC" aria-pressed="false" title="Accesorios">ACC</button>
+      <button type="button" data-tipo="MP"  aria-pressed="false" title="Materias primas">MP</button>
+    </div>
+    <div class="filtros" id="et-origen" role="group" aria-label="Filtrar por origen">
+      <button type="button" data-origen="" aria-pressed="true">Todos</button>
+      <button type="button" data-origen="fabricado" aria-pressed="false">Fabricado</button>
+      <button type="button" data-origen="comprado"  aria-pressed="false">Comprado</button>
+      <button type="button" data-origen="importado" aria-pressed="false">Importado</button>
+    </div>
+    <div class="barra-stock">
+      <p id="et-resumen" class="resumen" aria-live="polite"></p>
+      <button type="button" class="boton2" id="et-todos" hidden>Marcar todos</button>
+      <button type="button" class="boton2" id="et-ninguno" hidden>Desmarcar todos</button>
+    </div>
+    <div id="et-lista"><p class="vacio">Buscá o filtrá para ver productos.</p></div>
+    <div class="barra-stock">
+      <p id="et-sel" class="resumen" aria-live="polite"></p>
+      <button type="button" class="boton2" id="et-vaciar" hidden>Vaciar selección</button>
+    </div>
+
+    <h2 class="paso">2. Formato</h2>
+    <div class="formato">
+      <div><label for="et-cols">Por fila</label><input id="et-cols" type="number" inputmode="numeric" min="1" max="10" step="1"></div>
+      <div><label for="et-ancho">Ancho (mm)</label><input id="et-ancho" type="number" inputmode="decimal" min="10" step="0.5"></div>
+      <div><label for="et-alto">Alto (mm)</label><input id="et-alto" type="number" inputmode="decimal" min="10" step="0.5"></div>
+      <div><label for="et-sep">Separación (mm)</label><input id="et-sep" type="number" inputmode="decimal" min="0" step="0.5"></div>
+      <div><label for="et-margen">Margen de la hoja (mm)</label><input id="et-margen" type="number" inputmode="decimal" min="0" step="0.5"></div>
+      <div><label for="et-hojas">Hojas por tanda</label><input id="et-hojas" type="number" inputmode="numeric" min="1" step="1"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="et-bordes"> Marcar bordes para cortar</label>
+    <button type="button" class="boton2" id="et-ajustar" style="margin-top:.8rem">Ajustar el ancho para que entren justas por fila</button>
+    <p class="ayuda">Hoja A4. Al imprimir, elegí escala 100 % (o "Tamaño real") y sin encabezados ni pies de página.</p>
+    <div id="et-formato-aviso"></div>
+
+    <h2 class="paso">3. Imprimir</h2>
+    <div class="tandas">
+      <button type="button" class="boton2" id="et-ant" aria-label="Tanda anterior">‹ Anterior</button>
+      <span id="et-tanda">—</span>
+      <button type="button" class="boton2" id="et-sig" aria-label="Tanda siguiente">Siguiente ›</button>
+    </div>
+    <button class="enviar" id="et-imprimir" disabled>Imprimir</button>
+    <div id="et-aviso"></div>
+    <p class="ayuda">La vista previa de la tanda está debajo, a tamaño real.</p>
+  </section>
+
   <section id="p-usr" hidden>
     <div class="explica">
       <strong>Cómo se da acceso a una persona</strong>
@@ -496,6 +595,15 @@
   </div><!-- /app -->
 
 </main>
+
+<!-- Hoja de etiquetas: fuera de main para poder imprimirla sola. -->
+<div id="hoja-caja" hidden></div>
+
+<!-- Code 128: JsBarcode con versión fija; integrity hace que el navegador
+     la rechace si el archivo del CDN cambia. -->
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"
+        integrity="sha384-Kk5SjBOKprEnGfyBWfD2zROFd1Cu8kwOXxG2GIhYPcoDL2rBJS9P8Ud1ZMy4412a"
+        crossorigin="anonymous"></script>
 
 <script type="module">
 // ============================================================
@@ -515,11 +623,11 @@ let filas = [];
 
 // ---------- pestañas según rol ----------
 // Esto solo arma la pantalla: lo que cada rol puede hacer lo bloquea la base con RLS.
-const tabs = [['t-planta','p-planta'],['t-stock','p-stock'],['t-mov','p-mov'],['t-prod','p-prod'],['t-edit','p-edit'],['t-pend','p-pend'],['t-usr','p-usr']];
+const tabs = [['t-planta','p-planta'],['t-stock','p-stock'],['t-mov','p-mov'],['t-prod','p-prod'],['t-edit','p-edit'],['t-etq','p-etq'],['t-pend','p-pend'],['t-usr','p-usr']];
 // La primera de cada lista es la que se abre al entrar.
 const PERMISOS = {
   planta:   ['t-planta', 't-stock', 't-mov'],
-  admin:    ['t-stock', 't-planta', 't-mov', 't-prod', 't-edit', 't-pend', 't-usr'],
+  admin:    ['t-stock', 't-planta', 't-mov', 't-prod', 't-edit', 't-etq', 't-pend', 't-usr'],
   gerencia: ['t-stock'],
 };
 const NOMBRE_ROL = { planta: 'Planta', admin: 'Administración', gerencia: 'Gerencia' };
@@ -537,6 +645,9 @@ function abrir(bot){
   else plCerrarCamara();
   if (bot === 't-pend') cargarPendientes();
   if (bot === 't-usr') cargarUsuarios();
+  // La hoja de etiquetas solo existe (en pantalla y al imprimir) con su pestaña abierta.
+  document.body.classList.toggle('modo-etiquetas', bot === 't-etq');
+  if (bot === 't-etq') etAbrir(); else $('hoja-caja').hidden = true;
 }
 tabs.forEach(([bot]) => $(bot).onclick = () => abrir(bot));
 
@@ -562,19 +673,37 @@ function armarPantalla(rol){
 // pantalla lo dice y no muestra totales.
 const PAGINA = 1000;
 let filtroTipo = '';          // '' = todos
+let filtroOrigen = '';        // '' = todos
 let stockIncompleto = null;   // null = completo; si no, {cargados, total, error}
 let turnoStock = 0;
 let esperaStock;
 
 const textoBuscado = () => limpiarBusqueda($('buscar').value);
-const hayFiltro = () => !!(textoBuscado() || filtroTipo);
+const hayFiltro = () => !!(textoBuscado() || filtroTipo || filtroOrigen);
 
-function consultaStock(conteo){
+// Misma consulta para Stock y Etiquetas: texto, tipo y origen combinados.
+function consultaStockCon({ texto, tipo, origen }, conteo){
   let q = db.from('stock_detalle').select('*', conteo ? { count: 'exact' } : undefined);
-  const t = textoBuscado();
-  if (t) q = q.or(`codigo.ilike.*${t}*,descripcion.ilike.*${t}*`);
-  if (filtroTipo) q = q.eq('tipo', filtroTipo);
+  if (texto) q = q.or(`codigo.ilike.*${texto}*,descripcion.ilike.*${texto}*`);
+  if (tipo) q = q.eq('tipo', tipo);
+  if (origen) q = q.eq('origen', origen);
   return q.order('codigo');
+}
+const consultaStock = conteo =>
+  consultaStockCon({ texto: textoBuscado(), tipo: filtroTipo, origen: filtroOrigen }, conteo);
+
+// Grupo de botones de filtro: marca el elegido y avisa el valor.
+function grupoFiltro(id, atributo, alCambiar){
+  $(id).addEventListener('click', e => {
+    const b = e.target.closest(`[data-${atributo}]`);
+    if (!b) return;
+    $(id).querySelectorAll(`[data-${atributo}]`).forEach(x => x.setAttribute('aria-pressed', x === b));
+    alCambiar(b.dataset[atributo]);
+  });
+}
+function reiniciarGrupo(id, atributo){
+  $(id).querySelectorAll(`[data-${atributo}]`)
+    .forEach(x => x.setAttribute('aria-pressed', x.dataset[atributo] === ''));
 }
 
 // Trae todas las filas de una consulta, por páginas, hasta completar el
@@ -642,6 +771,7 @@ async function cargarStock(){
 function describirFiltro(){
   const partes = [];
   if (filtroTipo) partes.push(`tipo ${filtroTipo}`);
+  if (filtroOrigen) partes.push(`origen ${filtroOrigen}`);
   const t = $('buscar').value.trim();
   if (t) partes.push(`«${esc(t)}»`);
   return partes.join(' y ');
@@ -667,7 +797,7 @@ function pintar(){
     : filas.map(f => `
         <div class="fila">
           <div class="texto">
-            <div class="codigo">${esc(f.codigo)}${f.tipo ? `<span class="tipo">${esc(f.tipo)}</span>` : ''}</div>
+            <div class="codigo">${esc(f.codigo)}${f.tipo ? `<span class="tipo">${esc(f.tipo)}</span>` : ''}<button type="button" class="copiar" data-copiar="${esc(f.codigo)}" aria-label="Copiar el código ${esc(f.codigo)}">Copiar</button></div>
             <div class="desc">${esc(f.descripcion)}</div>
             ${f.etapa && f.etapa.trim() ? `<div class="etapa">Etapa: ${esc(f.etapa)}</div>` : ''}
           </div>
@@ -727,18 +857,266 @@ const COLUMNAS_STOCK = [
 ];
 $('exportar').onclick = () => {
   if (stockIncompleto || filas.length === 0) return;
-  descargarCSV(['stock', filtroTipo, $('buscar').value.trim()], COLUMNAS_STOCK, filas);
+  descargarCSV(['stock', filtroTipo, filtroOrigen, $('buscar').value.trim()], COLUMNAS_STOCK, filas);
 };
 
-$('filtro-tipo').onclick = e => {
-  const b = e.target.closest('[data-tipo]');
+grupoFiltro('filtro-tipo', 'tipo', v => { filtroTipo = v; clearTimeout(esperaStock); cargarStock(); });
+grupoFiltro('filtro-origen', 'origen', v => { filtroOrigen = v; clearTimeout(esperaStock); cargarStock(); });
+
+// ---------- copiar código ----------
+async function copiarTexto(texto){
+  try {
+    await navigator.clipboard.writeText(texto);
+    return true;
+  } catch {
+    // Respaldo para navegadores sin acceso al portapapeles.
+    const t = document.createElement('textarea');
+    t.value = texto; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+    document.body.appendChild(t); t.select();
+    const ok = document.execCommand('copy');
+    t.remove();
+    return ok;
+  }
+}
+$('lista').addEventListener('click', async e => {
+  const b = e.target.closest('[data-copiar]');
   if (!b) return;
-  filtroTipo = b.dataset.tipo;
-  $('filtro-tipo').querySelectorAll('[data-tipo]')
-    .forEach(x => x.setAttribute('aria-pressed', x === b));
-  clearTimeout(esperaStock);
-  cargarStock();
+  const ok = await copiarTexto(b.dataset.copiar);
+  b.textContent = ok ? 'Copiado ✓' : 'No se pudo';
+  b.classList.toggle('ok', ok);
+  clearTimeout(b._t);
+  b._t = setTimeout(() => { b.textContent = 'Copiar'; b.classList.remove('ok'); }, 1500);
+});
+
+// ---------- ETIQUETAS (admin) ----------
+// 1) se eligen productos con los mismos filtros de Stock (o a mano),
+// 2) se configura la grilla en mm, 3) se imprime por tandas con la
+// impresión del navegador. La selección se mantiene al cambiar filtros,
+// así se pueden juntar productos de varias búsquedas.
+const etFiltro = { tipo: '', origen: '' };
+let etFilas = [], etIncompleto = null, etTurno = 0, etEspera;
+const etSeleccion = new Map();   // codigo → fila de stock_detalle
+let etTanda = 0;
+
+// 21 por hoja A4 (3 × 7), una medida de etiqueta autoadhesiva común.
+const ET_DEFECTO = { cols: 3, ancho: 63.5, alto: 38.1, sep: 2.5, margen: 7, hojas: 1, bordes: true };
+const ET_CAMPOS = ['cols', 'ancho', 'alto', 'sep', 'margen', 'hojas'];
+function etLeerFormatoGuardado(){
+  try { return { ...ET_DEFECTO, ...JSON.parse(localStorage.getItem('etiquetas-formato') || '{}') }; }
+  catch { return { ...ET_DEFECTO }; }
+}
+function etGuardarFormato(f){ try { localStorage.setItem('etiquetas-formato', JSON.stringify(f)); } catch {} }
+(() => {
+  const f = etLeerFormatoGuardado();
+  ET_CAMPOS.forEach(k => $('et-' + k).value = f[k]);
+  $('et-bordes').checked = f.bordes;
+})();
+
+const etTexto = () => limpiarBusqueda($('et-buscar').value);
+const etHayFiltro = () => !!(etTexto() || etFiltro.tipo || etFiltro.origen);
+
+function etAbrir(){
+  if (!window.JsBarcode) {
+    avisar('et-aviso', 'No se pudo cargar la librería de códigos de barras (JsBarcode). Revisá la conexión y recargá la página.', false);
+  }
+  etPintarSeleccion();
+  etPintarHoja();
+}
+
+async function etBuscar(){
+  const n = ++etTurno;
+  etFilas = []; etIncompleto = null;
+  if (!etHayFiltro()) {
+    $('et-resumen').innerHTML = '';
+    $('et-todos').hidden = $('et-ninguno').hidden = true;
+    $('et-lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
+    return;
+  }
+  $('et-lista').innerHTML = '<p class="vacio">Buscando…</p>';
+  const res = await traerCompleto(c => consultaStockCon({ texto: etTexto(), ...etFiltro }, c));
+  if (n !== etTurno) return;
+  if (res.error && !res.filas) { $('et-lista').innerHTML = `<p class="vacio">${esc(res.error.message)}</p>`; return; }
+  etFilas = res.filas;
+  etIncompleto = resultadoIncompleto(res);
+  etPintarLista();
+}
+
+function etDescribirFiltro(){
+  const partes = [];
+  if (etFiltro.tipo) partes.push(`tipo ${etFiltro.tipo}`);
+  if (etFiltro.origen) partes.push(`origen ${etFiltro.origen}`);
+  const t = $('et-buscar').value.trim();
+  if (t) partes.push(`«${esc(t)}»`);
+  return partes.join(' y ');
+}
+
+function etPintarLista(){
+  const filtro = etDescribirFiltro();
+  $('et-resumen').innerHTML = etIncompleto
+    ? textoIncompleto(etIncompleto, filtro)
+    : `Con ${filtro}: <strong>${etFilas.length.toLocaleString('es-AR')}</strong> ${etFilas.length === 1 ? 'producto' : 'productos'}`;
+  // "Marcar todos" solo si la lista está completa: si no, marcaría una parte sin avisar.
+  $('et-todos').hidden = !!etIncompleto || etFilas.length === 0;
+  $('et-ninguno').hidden = etFilas.length === 0;
+  $('et-lista').innerHTML = etFilas.length === 0
+    ? '<p class="vacio">Sin resultados.</p>'
+    : etFilas.map(f => `
+        <label class="et-fila">
+          <input type="checkbox" data-codigo="${esc(f.codigo)}"${etSeleccion.has(f.codigo) ? ' checked' : ''}>
+          <span class="texto">${esc(f.codigo)} <span class="tipo">${esc(f.tipo ?? '')}</span><small>${esc(f.descripcion)}</small></span>
+        </label>`).join('');
+}
+
+function etCambioSeleccion(){
+  etTanda = 0;
+  etPintarSeleccion();
+  etPintarHoja();
+}
+function etPintarSeleccion(){
+  const n = etSeleccion.size;
+  $('et-sel').innerHTML = n
+    ? `Seleccionados para imprimir: <strong>${n.toLocaleString('es-AR')}</strong>`
+    : 'Todavía no hay productos seleccionados.';
+  $('et-vaciar').hidden = n === 0;
+}
+
+$('et-lista').addEventListener('change', e => {
+  const c = e.target.closest('[data-codigo]');
+  if (!c) return;
+  const f = etFilas.find(x => x.codigo === c.dataset.codigo);
+  if (c.checked && f) etSeleccion.set(f.codigo, f); else etSeleccion.delete(c.dataset.codigo);
+  etCambioSeleccion();
+});
+$('et-todos').onclick = () => { etFilas.forEach(f => etSeleccion.set(f.codigo, f)); etPintarLista(); etCambioSeleccion(); };
+$('et-ninguno').onclick = () => { etFilas.forEach(f => etSeleccion.delete(f.codigo)); etPintarLista(); etCambioSeleccion(); };
+$('et-vaciar').onclick = () => { etSeleccion.clear(); etPintarLista(); etCambioSeleccion(); };
+
+$('et-buscar').oninput = () => { clearTimeout(etEspera); etEspera = setTimeout(etBuscar, 300); };
+grupoFiltro('et-tipo', 'tipo', v => { etFiltro.tipo = v; clearTimeout(etEspera); etBuscar(); });
+grupoFiltro('et-origen', 'origen', v => { etFiltro.origen = v; clearTimeout(etEspera); etBuscar(); });
+
+// ----- formato y paginado -----
+const A4 = { ancho: 210, alto: 297 };
+const num = n => Number(n).toLocaleString('es-AR', { maximumFractionDigits: 1 });
+function etFormato(){
+  const f = Object.fromEntries(ET_CAMPOS.map(k => [k, Number($('et-' + k).value)]));
+  f.bordes = $('et-bordes').checked;
+  return f;
+}
+// Devuelve cuántas entran por hoja, o el motivo por el que no entran.
+function etValidar(f){
+  if (!Number.isInteger(f.cols) || f.cols < 1) return { error: '"Por fila" tiene que ser un entero, 1 o más.' };
+  if (!(f.ancho >= 10) || !(f.alto >= 10)) return { error: 'Ancho y alto tienen que ser de 10 mm o más.' };
+  if (!(f.sep >= 0) || !(f.margen >= 0)) return { error: 'Separación y margen no pueden ser negativos.' };
+  if (!Number.isInteger(f.hojas) || f.hojas < 1) return { error: '"Hojas por tanda" tiene que ser un entero, 1 o más.' };
+  const utilAncho = A4.ancho - 2 * f.margen, utilAlto = A4.alto - 2 * f.margen;
+  const ocupa = f.cols * f.ancho + (f.cols - 1) * f.sep;
+  if (ocupa > utilAncho + 0.01) {
+    const maxAncho = Math.floor(((utilAncho - (f.cols - 1) * f.sep) / f.cols) * 10) / 10;
+    return { error: `No entran ${f.cols} por fila de ${num(f.ancho)} mm: ocupan ${num(ocupa)} mm y la hoja deja ${num(utilAncho)} mm. ` +
+      (maxAncho >= 10 ? `Con ${f.cols} por fila el ancho máximo es ${num(maxAncho)} mm.` : 'Bajá la cantidad por fila o el margen.') };
+  }
+  const filasHoja = Math.floor((utilAlto + f.sep) / (f.alto + f.sep));
+  if (filasHoja < 1) return { error: `Una etiqueta de ${num(f.alto)} mm de alto no entra en la hoja con ese margen.` };
+  return { porHoja: f.cols * filasHoja, filasHoja };
+}
+
+ET_CAMPOS.concat('bordes').forEach(k => $('et-' + k).addEventListener('input', () => {
+  const f = etFormato();
+  if (!etValidar(f).error) etGuardarFormato(f);
+  etTanda = 0;
+  etPintarHoja();
+}));
+$('et-ajustar').onclick = () => {
+  const f = etFormato();
+  if (!Number.isInteger(f.cols) || f.cols < 1) return;
+  const util = A4.ancho - 2 * Math.max(0, f.margen) - (f.cols - 1) * Math.max(0, f.sep);
+  $('et-ancho').value = Math.floor((util / f.cols) * 10) / 10;
+  $('et-ancho').dispatchEvent(new Event('input'));
 };
+
+function etOrdenadas(){
+  return [...etSeleccion.values()].sort((a, b) => a.codigo.localeCompare(b.codigo));
+}
+
+function etPintarHoja(){
+  const f = etFormato();
+  const v = etValidar(f);
+  const todas = etOrdenadas();
+  $('et-formato-aviso').innerHTML = v.error ? `<div class="aviso mal">${esc(v.error)}</div>`
+    : `<p class="ayuda">Entran ${v.porHoja} por hoja (${f.cols} por fila × ${v.filasHoja} filas).</p>`;
+
+  const porTanda = v.error ? 0 : v.porHoja * f.hojas;
+  const nTandas = porTanda ? Math.ceil(todas.length / porTanda) : 0;
+  etTanda = Math.min(etTanda, Math.max(0, nTandas - 1));
+  $('et-ant').disabled = etTanda <= 0;
+  $('et-sig').disabled = etTanda >= nTandas - 1;
+  $('et-imprimir').disabled = !!v.error || todas.length === 0 || !window.JsBarcode;
+
+  if (v.error || todas.length === 0) {
+    $('et-tanda').textContent = todas.length === 0 ? 'Sin productos seleccionados' : '—';
+    $('et-imprimir').textContent = 'Imprimir';
+    $('hoja-caja').hidden = true;
+    $('hoja-caja').innerHTML = '';
+    return;
+  }
+
+  const desde = etTanda * porTanda;
+  const tanda = todas.slice(desde, desde + porTanda);
+  $('et-tanda').textContent = `Tanda ${num(etTanda + 1)} de ${num(nTandas)} · etiquetas ${num(desde + 1)}–${num(desde + tanda.length)} de ${num(todas.length)}`;
+  $('et-imprimir').textContent = nTandas > 1 ? `Imprimir tanda ${num(etTanda + 1)} de ${num(nTandas)}` : 'Imprimir';
+
+  const estiloPagina = `padding:${f.margen}mm;grid-template-columns:repeat(${f.cols},${f.ancho}mm);` +
+    `grid-auto-rows:${f.alto}mm;gap:${f.sep}mm;--alto:${f.alto}`;
+  const paginas = [];
+  for (let i = 0; i < tanda.length; i += v.porHoja) paginas.push(tanda.slice(i, i + v.porHoja));
+  $('hoja-caja').innerHTML = paginas.map(pag => `
+    <div class="pagina${f.bordes ? ' bordes' : ''}" style="${estiloPagina}">
+      ${pag.map(p => `
+        <div class="etq" data-codigo="${esc(p.codigo)}">
+          <div class="etq-cod">${esc(p.codigo)}</div>
+          <div class="etq-barras"></div>
+          <div class="etq-desc">${esc(p.descripcion ?? '')}</div>
+        </div>`).join('')}
+    </div>`).join('');
+  $('hoja-caja').hidden = false;
+  etDibujarBarras(f);
+}
+
+// Code 128 en SVG. Se estira solo a lo ancho: las barras mantienen sus
+// proporciones, que es lo que importa para leerlas. Margen de 10 módulos
+// a cada lado (zona de silencio que piden los lectores).
+const ET_MODULO_MIN_MM = 0.19;   // por debajo, a un celular le cuesta leerlo
+function etDibujarBarras(f){
+  let finas = 0, invalidas = 0;
+  $('hoja-caja').querySelectorAll('.etq').forEach(etq => {
+    const caja = etq.querySelector('.etq-barras');
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    try {
+      window.JsBarcode(svg, etq.dataset.codigo, {
+        format: 'CODE128', displayValue: false, width: 2, height: 100,
+        margin: 0, marginLeft: 20, marginRight: 20, background: 'transparent',
+      });
+    } catch {
+      invalidas++;
+      caja.outerHTML = '<div class="etq-error">Este código tiene caracteres que Code 128 no admite (por ejemplo Ñ o tildes).</div>';
+      return;
+    }
+    svg.removeAttribute('width'); svg.removeAttribute('height');
+    svg.setAttribute('preserveAspectRatio', 'none');
+    caja.appendChild(svg);
+    const modulos = Number(svg.getAttribute('viewBox').split(' ')[2]) / 2;
+    if ((f.ancho - 3) / modulos < ET_MODULO_MIN_MM) { finas++; etq.classList.add('fina'); }
+  });
+  const avisos = [];
+  if (invalidas) avisos.push(`${invalidas} ${invalidas === 1 ? 'código no se puede' : 'códigos no se pueden'} pasar a Code 128.`);
+  if (finas) avisos.push(`En ${finas} ${finas === 1 ? 'etiqueta' : 'etiquetas'} (marcadas en rojo en la vista previa) las barras quedan muy finas para leerlas bien: agrandá el ancho o poné menos por fila.`);
+  $('et-aviso').innerHTML = avisos.length ? `<div class="aviso mal">${avisos.join('\n')}</div>` : '';
+}
+
+$('et-ant').onclick = () => { etTanda--; etPintarHoja(); };
+$('et-sig').onclick = () => { etTanda++; etPintarHoja(); };
+$('et-imprimir').onclick = () => { if (!$('et-imprimir').disabled) window.print(); };
 
 // ---------- motivos (tabla motivos: el signo lo define la base) ----------
 let motivos = [];
@@ -1776,10 +2154,20 @@ function mostrarLogin(){
   $('p-login').hidden = false;
   permitidas = [];
   filas = [];
-  filtroTipo = '';
+  filtroTipo = ''; filtroOrigen = '';
   $('buscar').value = '';
-  $('filtro-tipo').querySelectorAll('[data-tipo]')
-    .forEach(x => x.setAttribute('aria-pressed', x.dataset.tipo === ''));
+  reiniciarGrupo('filtro-tipo', 'tipo');
+  reiniciarGrupo('filtro-origen', 'origen');
+  // Etiquetas
+  document.body.classList.remove('modo-etiquetas');
+  etSeleccion.clear(); etFilas = []; etTanda = 0;
+  etFiltro.tipo = ''; etFiltro.origen = '';
+  $('et-buscar').value = '';
+  reiniciarGrupo('et-tipo', 'tipo');
+  reiniciarGrupo('et-origen', 'origen');
+  $('et-lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
+  $('et-resumen').innerHTML = '';
+  $('hoja-caja').hidden = true; $('hoja-caja').innerHTML = '';
   $('resumen').innerHTML = '';
   $('lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
   $('exportar').hidden = true;
