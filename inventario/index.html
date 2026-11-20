@@ -345,8 +345,8 @@
   <section id="p-stock">
     <input id="buscar" placeholder="Buscar por código o descripción" autocomplete="off">
     <div class="filtros" id="filtro-tipo" role="group" aria-label="Filtrar por tipo">
-      <button type="button" data-tipo="" aria-pressed="true">Todos</button>
-      <button type="button" data-tipo="COR" aria-pressed="false" title="Cortes">COR</button>
+      <button type="button" data-tipo="" aria-pressed="false">Todos</button>
+      <button type="button" data-tipo="COR" aria-pressed="true" title="Cortes">COR</button>
       <button type="button" data-tipo="SE"  aria-pressed="false" title="Semielaborados">SE</button>
       <button type="button" data-tipo="ACC" aria-pressed="false" title="Accesorios">ACC</button>
       <button type="button" data-tipo="MP"  aria-pressed="false" title="Materias primas">MP</button>
@@ -361,7 +361,7 @@
       <p id="resumen" class="resumen" aria-live="polite"></p>
       <button type="button" class="boton2" id="exportar" hidden>Exportar</button>
     </div>
-    <div id="lista"><p class="vacio">Buscá o filtrá para ver productos.</p></div>
+    <div id="lista"></div>
   </section>
 
   <!-- ====== MOVIMIENTO ====== -->
@@ -725,14 +725,16 @@ function armarPantalla(rol){
 // hasta completar el total que informa la base; si no se llega, la
 // pantalla lo dice y no muestra totales.
 const PAGINA = 1000;
-let filtroTipo = '';          // '' = todos
+// Arranca en COR para no traer todo el catálogo al abrir. '' = Todos:
+// el catálogo completo, por páginas.
+const TIPO_INICIAL = 'COR';
+let filtroTipo = TIPO_INICIAL;
 let filtroOrigen = '';        // '' = todos
 let stockIncompleto = null;   // null = completo; si no, {cargados, total, error}
 let turnoStock = 0;
 let esperaStock;
 
 const textoBuscado = () => limpiarBusqueda($('buscar').value);
-const hayFiltro = () => !!(textoBuscado() || filtroTipo || filtroOrigen);
 
 // Misma consulta para Stock y Etiquetas: texto, tipo y origen combinados.
 function consultaStockCon({ texto, tipo, origen }, conteo){
@@ -799,13 +801,8 @@ function textoIncompleto({ cargados, total, error }, filtro){
 
 async function cargarStock(){
   const n = ++turnoStock;
-  if (!hayFiltro()) {
-    filas = []; stockIncompleto = null;
-    $('exportar').hidden = true;
-    $('resumen').innerHTML = '';
-    $('lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
-    return;
-  }
+  // Sin filtros es el catálogo completo: traerCompleto lo pide por páginas
+  // hasta llegar al total que informa la base (Supabase corta en 1000).
   $('lista').innerHTML = '<p class="vacio">Buscando…</p>';
   $('exportar').hidden = true;
   const res = await traerCompleto(consultaStock);
@@ -829,6 +826,8 @@ function describirFiltro(){
   if (t) partes.push(`«${esc(t)}»`);
   return partes.join(' y ');
 }
+// "Con tipo COR: …" o, sin filtros, "Todo el catálogo: …"
+const encabezadoFiltro = filtro => filtro ? `Con ${filtro}: ` : 'Todo el catálogo: ';
 
 function pintar(){
   // Exportar solo si lo que se ve está completo: un CSV parcial es el
@@ -837,10 +836,10 @@ function pintar(){
   const fmt = n => n.toLocaleString('es-AR');
   const filtro = describirFiltro();
   if (stockIncompleto) {
-    $('resumen').innerHTML = textoIncompleto(stockIncompleto, filtro);
+    $('resumen').innerHTML = textoIncompleto(stockIncompleto, filtro || 'todo el catálogo');
   } else {
     const unidades = filas.reduce((t, f) => t + (Number(f.stock) || 0), 0);
-    $('resumen').innerHTML = `Con ${filtro}: ` +
+    $('resumen').innerHTML = encabezadoFiltro(filtro) +
       `<strong>${fmt(filas.length)}</strong> ${filas.length === 1 ? 'producto' : 'productos'}` +
       ` · <strong>${fmt(unidades)}</strong> ${unidades === 1 ? 'unidad' : 'unidades'}`;
   }
@@ -1978,8 +1977,6 @@ function plNoSe(){
       <label class="pl-label" for="pl-nose-desc">Qué es, como lo describirías <span class="req">*</span></label>
       <textarea id="pl-nose-desc" class="pl-texto" rows="2" maxlength="200"
                 placeholder="Ej.: caja con tapas redondas sin etiqueta"></textarea>
-      <label class="pl-label" for="pl-nose-de">De dónde vino, si sabés</label>
-      <input id="pl-nose-de" class="pl-texto" maxlength="200" placeholder="Ej.: proveedor, otra planta">
       <label class="pl-label" for="pl-nose-donde">Dónde lo dejaste <span class="req">*</span></label>
       <input id="pl-nose-donde" class="pl-texto" maxlength="200" placeholder="Ej.: estante PA, al lado de la balanza">
       <input id="pl-nose-foto" type="file" accept="image/*" capture="environment" hidden>
@@ -2014,7 +2011,6 @@ function plNoSe(){
   $('pl-nose-form').onsubmit = async e => {
     e.preventDefault();
     const desc = $('pl-nose-desc').value.trim();
-    const de = $('pl-nose-de').value.trim();
     const donde = $('pl-nose-donde').value.trim();
     const falta = !desc ? 'Escribí qué es, aunque sea aproximado.'
                 : !donde ? 'Escribí dónde lo dejaste, para que lo puedan encontrar.' : '';
@@ -2040,7 +2036,7 @@ function plNoSe(){
     }
     // Fecha y usuario los pone la base.
     const { error } = await db.from('pedidos_alta').insert({
-      tipo: 'sin_codigo', descripcion: desc, procedencia: de || null, ubicacion: donde, foto,
+      tipo: 'sin_codigo', descripcion: desc, ubicacion: donde, foto,
     });
     if (error) {
       b.disabled = false;
@@ -2550,9 +2546,10 @@ function mostrarLogin(){
   $('p-login').hidden = false;
   permitidas = [];
   filas = [];
-  filtroTipo = ''; filtroOrigen = '';
+  filtroTipo = TIPO_INICIAL; filtroOrigen = '';
   $('buscar').value = '';
-  reiniciarGrupo('filtro-tipo', 'tipo');
+  $('filtro-tipo').querySelectorAll('[data-tipo]')
+    .forEach(x => x.setAttribute('aria-pressed', x.dataset.tipo === TIPO_INICIAL));
   reiniciarGrupo('filtro-origen', 'origen');
   // Etiquetas
   document.body.classList.remove('modo-etiquetas');
@@ -2565,7 +2562,7 @@ function mostrarLogin(){
   $('et-resumen').innerHTML = '';
   $('hoja-caja').hidden = true; $('hoja-caja').innerHTML = '';
   $('resumen').innerHTML = '';
-  $('lista').innerHTML = '<p class="vacio">Buscá o filtrá para ver productos.</p>';
+  $('lista').innerHTML = '';
   $('exportar').hidden = true;
   $('m-prod').value = '';
   prodMov = null;
